@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Reaction Time Lab</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f5f5f4;--bg3:#ebebea;
+  --fg:#111111;--fg2:#555555;--fg3:#999999;
+  --line:rgba(0,0,0,0.1);--line2:rgba(0,0,0,0.18);
+  --green:#1D9E75;--green-dark:#0F6E56;--green-light:#E1F5EE;
+  --red:#E24B4A;--red-dark:#A32D2D;--red-light:#FCEBEB;
+  --blue:#378ADD;--amber:#EF9F27;
+  --radius:10px;--radius-sm:6px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#161616;--bg2:#1f1f1e;--bg3:#2a2a29;
+    --fg:#f0f0f0;--fg2:#aaaaaa;--fg3:#666666;
+    --line:rgba(255,255,255,0.09);--line2:rgba(255,255,255,0.18);
+    --green-light:#085041;--red-light:#501313;
+  }
+}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--fg);min-height:100vh}
+
+/* NAV */
+nav{border-bottom:0.5px solid var(--line);padding:0 max(1.5rem,calc(50% - 580px));height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;background:var(--bg)}
+.nav-brand{font-size:15px;font-weight:500;letter-spacing:-.01em;color:var(--fg)}
+.nav-brand span{color:var(--green);font-size:18px;vertical-align:-1px}
+.nav-tag{font-size:11px;color:var(--fg3);letter-spacing:.06em;text-transform:uppercase;border:0.5px solid var(--line2);padding:4px 10px;border-radius:20px}
+
+/* HERO */
+.hero{padding:3.5rem max(1.5rem,calc(50% - 580px)) 2.5rem;border-bottom:0.5px solid var(--line)}
+.hero-eyebrow{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);margin-bottom:.75rem}
+.hero-title{font-size:clamp(32px,5vw,52px);font-weight:500;letter-spacing:-.03em;line-height:1.05;color:var(--fg);margin-bottom:.75rem}
+.hero-desc{font-size:15px;color:var(--fg2);max-width:480px;line-height:1.65}
+.hero-stats{display:flex;gap:2rem;margin-top:1.75rem;flex-wrap:wrap}
+.hero-stat .num{font-size:26px;font-weight:500;letter-spacing:-.02em;color:var(--fg)}
+.hero-stat .lbl{font-size:11px;color:var(--fg3);letter-spacing:.04em;text-transform:uppercase;margin-top:2px}
+
+/* MAIN */
+main{padding:2rem max(1.5rem,calc(50% - 580px)) 4rem}
+
+/* TABS */
+.game-tabs{display:flex;gap:0;border:0.5px solid var(--line2);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:1.5rem;background:var(--bg2);width:100%}
+.tab-btn{flex:1;padding:10px 6px;font-size:12px;font-weight:500;border:none;background:transparent;cursor:pointer;color:var(--fg2);border-right:0.5px solid var(--line);letter-spacing:.02em;transition:all .15s;line-height:1.3}
+.tab-btn:last-child{border-right:none}
+.tab-btn.active{background:var(--bg);color:var(--fg)}
+.tab-btn:hover:not(.active){color:var(--fg);background:var(--bg3)}
+.tab-sub{display:block;font-size:10px;font-weight:400;color:var(--fg3);margin-top:2px}
+
+/* GAME PANELS */
+.game-panel{display:none}.game-panel.active{display:block}
+.game-area{background:var(--bg);border:0.5px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+.arena{width:100%;height:300px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;user-select:none;transition:background .15s}
+.arena-msg{font-size:14px;color:var(--fg2);text-align:center;pointer-events:none;padding:0 1rem;line-height:1.6}
+.arena-num{font-size:52px;font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums;pointer-events:none;letter-spacing:-.03em}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:1rem}
+.stat-card{background:var(--bg2);border-radius:var(--radius-sm);padding:.7rem .9rem}
+.stat-label{font-size:10px;color:var(--fg3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
+.stat-val{font-size:20px;font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums;line-height:1}
+.stat-unit{font-size:12px;color:var(--fg2);margin-left:1px}
+
+/* CONTROLS */
+.ctrl-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{padding:8px 18px;font-size:13px;font-weight:500;border:0.5px solid var(--line2);border-radius:var(--radius-sm);background:transparent;cursor:pointer;color:var(--fg);transition:all .15s}
+.btn:hover{background:var(--bg2)}
+.btn.primary{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.btn.primary:hover{opacity:.82}
+.game-hint{font-size:11px;color:var(--fg3);margin-left:auto;letter-spacing:.01em}
+
+/* DOTS */
+.history-wrap{min-height:20px;margin-top:.5rem}
+.history-dots{display:flex;gap:4px;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--bg3)}
+.dot.good{background:var(--green)}.dot.ok{background:var(--amber)}.dot.bad{background:var(--red)}
+
+/* CHOICE SHAPES */
+.choice-area{display:flex;flex-direction:column;align-items:center;gap:1.25rem;cursor:default}
+.choice-display{font-size:64px;pointer-events:none;line-height:1;min-height:72px;display:flex;align-items:center}
+.choice-btns{display:flex;gap:12px}
+.choice-btn{width:72px;height:72px;border-radius:var(--radius);font-size:22px;border:1px solid var(--line2);background:var(--bg);cursor:pointer;color:var(--fg);transition:all .12s}
+.choice-btn:hover{background:var(--bg2);border-color:var(--fg3)}
+
+/* SEQUENCE */
+.seq-grid{display:grid;grid-template-columns:repeat(3,76px);gap:10px;justify-content:center}
+.seq-cell{width:76px;height:76px;border-radius:var(--radius-sm);border:1px solid var(--line2);background:var(--bg2);cursor:pointer;transition:background .1s,border-color .1s;font-size:14px;font-weight:500;color:var(--fg3);display:flex;align-items:center;justify-content:center}
+.seq-cell:hover{background:var(--bg3)}
+.seq-cell.lit{background:var(--green);border-color:var(--green-dark);color:var(--green-light)}
+.seq-cell.wrong{background:var(--red);border-color:var(--red-dark);color:var(--red-light)}
+
+/* AIM */
+.aim-arena{cursor:crosshair}
+.aim-target{position:absolute;border-radius:50%;cursor:crosshair;display:flex;align-items:center;justify-content:center;background:var(--green);border:2px solid var(--green-dark);transition:transform .08s}
+.aim-target:hover{transform:scale(1.06)}
+
+/* STROOP */
+.stroop-word{font-size:54px;font-weight:500;text-align:center;letter-spacing:-.03em;pointer-events:none;padding:.5rem}
+.stroop-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:.75rem 1rem 1rem}
+.stroop-btn{padding:11px 0;border-radius:var(--radius-sm);border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:13px;font-weight:500;transition:background .12s}
+.stroop-btn:hover{background:var(--bg2)}
+.prog-bar-wrap{height:3px;background:var(--bg3);overflow:hidden}
+.prog-bar{height:100%;background:var(--green);transition:width .1s linear;width:100%}
+
+/* FOOTER */
+footer{border-top:0.5px solid var(--line);padding:1.5rem max(1.5rem,calc(50% - 580px));font-size:12px;color:var(--fg3);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+
+@media(max-width:560px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .stroop-btns{grid-template-columns:repeat(2,1fr)}
+  .hero-stats{gap:1.25rem}
+  .tab-btn{font-size:11px;padding:8px 4px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand"><span>◎</span> Reaction Time Lab</div>
+  <div class="nav-tag">5 tests</div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Cognitive performance testing</div>
+  <h1 class="hero-title">How fast is<br>your brain?</h1>
+  <p class="hero-desc">Five real-time tests that measure different dimensions of your reaction speed — from raw reflexes to decision-making and inhibition control.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">~250ms</div><div class="lbl">Average human reaction</div></div>
+    <div class="hero-stat"><div class="num">5</div><div class="lbl">Unique games</div></div>
+    <div class="hero-stat"><div class="num">Real-time</div><div class="lbl">Live scoring</div></div>
+  </div>
+</div>
+
+<main>
+  <div class="game-tabs">
+    <button class="tab-btn active" onclick="switchGame('simple',this)">Simple<span class="tab-sub">Reflex</span></button>
+    <button class="tab-btn" onclick="switchGame('choice',this)">Choice<span class="tab-sub">Decision</span></button>
+    <button class="tab-btn" onclick="switchGame('sequence',this)">Sequence<span class="tab-sub">Memory</span></button>
+    <button class="tab-btn" onclick="switchGame('aim',this)">Aim<span class="tab-sub">Precision</span></button>
+    <button class="tab-btn" onclick="switchGame('stroop',this)">Stroop<span class="tab-sub">Inhibition</span></button>
+  </div>
+
+  <!-- SIMPLE -->
+  <div class="game-panel active" id="panel-simple">
+    <div class="game-area">
+      <div class="arena" id="simple-arena" onclick="simpleClick()">
+        <div style="text-align:center">
+          <div class="arena-msg" id="simple-msg">Click <strong>Start</strong> — then click when the screen turns green</div>
+          <div class="arena-num" id="simple-num" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Last</div><div class="stat-val" id="s-last">—</div></div>
+      <div class="stat-card"><div class="stat-label">Best</div><div class="stat-val" id="s-best">—</div></div>
+      <div class="stat-card"><div class="stat-label">Average</div><div class="stat-val" id="s-avg">—</div></div>
+      <div class="stat-card"><div class="stat-label">Attempts</div><div class="stat-val" id="s-count">0</div></div>
+    </div>
+    <div class="history-wrap"><div class="history-dots" id="s-dots"></div></div>
+    <div class="ctrl-row" style="margin-top:.75rem">
+      <button class="btn primary" onclick="simpleStart()">Start</button>
+      <button class="btn" onclick="simpleReset()">Reset</button>
+      <span class="game-hint">Click as soon as green appears</span>
+    </div>
+  </div>
+
+  <!-- CHOICE -->
+  <div class="game-panel" id="panel-choice">
+    <div class="game-area">
+      <div class="arena" style="cursor:default">
+        <div class="choice-area" style="width:100%">
+          <div class="arena-msg" id="choice-msg">Click <strong>Start</strong> — then click the shape shown</div>
+          <div class="choice-display" id="choice-display" style="display:none"></div>
+          <div class="choice-btns" id="choice-btns" style="display:none">
+            <button class="choice-btn" onclick="choiceAnswer('circle')">●</button>
+            <button class="choice-btn" onclick="choiceAnswer('square')">■</button>
+            <button class="choice-btn" onclick="choiceAnswer('triangle')">▲</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Last</div><div class="stat-val" id="c-last">—</div></div>
+      <div class="stat-card"><div class="stat-label">Best</div><div class="stat-val" id="c-best">—</div></div>
+      <div class="stat-card"><div class="stat-label">Accuracy</div><div class="stat-val" id="c-acc">—</div></div>
+      <div class="stat-card"><div class="stat-label">Attempts</div><div class="stat-val" id="c-count">0</div></div>
+    </div>
+    <div class="history-wrap"><div class="history-dots" id="c-dots"></div></div>
+    <div class="ctrl-row" style="margin-top:.75rem">
+      <button class="btn primary" onclick="choiceStart()">Start</button>
+      <button class="btn" onclick="choiceReset()">Reset</button>
+      <span class="game-hint">Match the shape — speed + accuracy</span>
+    </div>
+  </div>
+
+  <!-- SEQUENCE -->
+  <div class="game-panel" id="panel-sequence">
+    <div class="game-area">
+      <div class="arena" style="cursor:default;height:auto;flex-direction:column;gap:1.5rem;padding:2rem">
+        <div class="arena-msg" id="seq-msg">Click <strong>Start</strong> — watch the pattern, then repeat it</div>
+        <div class="seq-grid" id="seq-grid">
+          <div class="seq-cell" onclick="seqInput(0)">1</div>
+          <div class="seq-cell" onclick="seqInput(1)">2</div>
+          <div class="seq-cell" onclick="seqInput(2)">3</div>
+          <div class="seq-cell" onclick="seqInput(3)">4</div>
+          <div class="seq-cell" onclick="seqInput(4)">5</div>
+          <div class="seq-cell" onclick="seqInput(5)">6</div>
+          <div class="seq-cell" onclick="seqInput(6)">7</div>
+          <div class="seq-cell" onclick="seqInput(7)">8</div>
+          <div class="seq-cell" onclick="seqInput(8)">9</div>
+        </div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Level</div><div class="stat-val" id="seq-level">1</div></div>
+      <div class="stat-card"><div class="stat-label">Best level</div><div class="stat-val" id="seq-best">—</div></div>
+      <div class="stat-card"><div class="stat-label">Sequence</div><div class="stat-val" id="seq-len">—</div></div>
+      <div class="stat-card"><div class="stat-label">Status</div><div class="stat-val" style="font-size:14px" id="seq-status">Ready</div></div>
+    </div>
+    <div class="ctrl-row" style="margin-top:.75rem">
+      <button class="btn primary" onclick="seqStart()">Start</button>
+      <button class="btn" onclick="seqReset()">Reset</button>
+      <span class="game-hint">Levels get longer each round</span>
+    </div>
+  </div>
+
+  <!-- AIM -->
+  <div class="game-panel" id="panel-aim">
+    <div class="game-area">
+      <div class="arena aim-arena" id="aim-arena" onclick="aimMiss(event)" style="height:320px">
+        <div class="arena-msg" id="aim-msg">Click <strong>Start</strong> — hit every target as fast as possible</div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Last hit</div><div class="stat-val" id="a-last">—</div></div>
+      <div class="stat-card"><div class="stat-label">Best hit</div><div class="stat-val" id="a-best">—</div></div>
+      <div class="stat-card"><div class="stat-label">Hits</div><div class="stat-val" id="a-hits">0</div></div>
+      <div class="stat-card"><div class="stat-label">Misses</div><div class="stat-val" id="a-miss">0</div></div>
+    </div>
+    <div class="history-wrap"><div class="history-dots" id="a-dots"></div></div>
+    <div class="ctrl-row" style="margin-top:.75rem">
+      <button class="btn primary" onclick="aimStart()">Start</button>
+      <button class="btn" onclick="aimReset()">Reset</button>
+      <span class="game-hint">Smaller targets = harder</span>
+    </div>
+  </div>
+
+  <!-- STROOP -->
+  <div class="game-panel" id="panel-stroop">
+    <div class="game-area">
+      <div class="arena" style="flex-direction:column;cursor:default;height:auto">
+        <div class="prog-bar-wrap" style="width:100%" id="stroop-prog-wrap" style="display:none">
+          <div class="prog-bar" id="stroop-prog"></div>
+        </div>
+        <div style="padding:1.5rem 1rem .5rem;width:100%;text-align:center">
+          <div class="arena-msg" id="stroop-msg">Click <strong>Start</strong> — name the ink <em>color</em>, not the word</div>
+          <div class="stroop-word" id="stroop-word" style="display:none"></div>
+        </div>
+        <div class="stroop-btns" style="width:100%">
+          <button class="stroop-btn" onclick="stroopAnswer('red')" style="color:#A32D2D;border-color:#F09595">Red</button>
+          <button class="stroop-btn" onclick="stroopAnswer('blue')" style="color:#185FA5;border-color:#85B7EB">Blue</button>
+          <button class="stroop-btn" onclick="stroopAnswer('green')" style="color:#3B6D11;border-color:#97C459">Green</button>
+          <button class="stroop-btn" onclick="stroopAnswer('amber')" style="color:#854F0B;border-color:#EF9F27">Amber</button>
+        </div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Last</div><div class="stat-val" id="st-last">—</div></div>
+      <div class="stat-card"><div class="stat-label">Best</div><div class="stat-val" id="st-best">—</div></div>
+      <div class="stat-card"><div class="stat-label">Accuracy</div><div class="stat-val" id="st-acc">—</div></div>
+      <div class="stat-card"><div class="stat-label">Score</div><div class="stat-val" id="st-score">0</div></div>
+    </div>
+    <div class="history-wrap"><div class="history-dots" id="st-dots"></div></div>
+    <div class="ctrl-row" style="margin-top:.75rem">
+      <button class="btn primary" onclick="stroopStart()">Start</button>
+      <button class="btn" onclick="stroopReset()">Reset</button>
+      <span class="game-hint">3 seconds per question</span>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <span>Reaction Time Lab — by Dhanushwaran</span>
+  <span>5 tests · Real-time scoring</span>
+</footer>
+
+<script>
+function switchGame(id,btn){
+  document.querySelectorAll('.game-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+function ms(v){return v+'<span class="stat-unit">ms</span>'}
+function addDot(id,v){
+  const d=document.getElementById(id),el=document.createElement('div');
+  el.className='dot '+(v<250?'good':v<400?'ok':'bad');d.appendChild(el);
+}
+function colorDot(id,ok){
+  const d=document.getElementById(id),el=document.createElement('div');
+  el.className='dot '+(ok?'good':'bad');d.appendChild(el);
+}
+
+// ── SIMPLE ──
+let sState='idle',sTimer=null,sStart=0,sTimes=[];
+function simpleStart(){
+  if(sState==='waiting'||sState==='go')return;
+  sState='waiting';
+  const a=document.getElementById('simple-arena');
+  a.style.background='var(--bg2)';
+  document.getElementById('simple-msg').style.display='flex';
+  document.getElementById('simple-msg').textContent='Get ready…';
+  document.getElementById('simple-num').style.display='none';
+  clearTimeout(sTimer);
+  sTimer=setTimeout(()=>{
+    sState='go';sStart=performance.now();
+    a.style.background='#1D9E75';
+    document.getElementById('simple-msg').textContent='';
+    document.getElementById('simple-num').style.display='block';
+    document.getElementById('simple-num').textContent='NOW!';
+  },1500+Math.random()*2500);
+}
+function simpleClick(){
+  if(sState==='go'){
+    const t=Math.round(performance.now()-sStart);
+    document.getElementById('simple-arena').style.background='var(--bg)';
+    document.getElementById('simple-num').textContent=t+'ms';
+    document.getElementById('simple-msg').textContent='';
+    sTimes.push(t);
+    document.getElementById('s-last').innerHTML=ms(t);
+    document.getElementById('s-best').innerHTML=ms(Math.min(...sTimes));
+    document.getElementById('s-avg').innerHTML=ms(Math.round(sTimes.reduce((a,b)=>a+b)/sTimes.length));
+    document.getElementById('s-count').textContent=sTimes.length;
+    addDot('s-dots',t);sState='idle';
+  }else if(sState==='waiting'){
+    clearTimeout(sTimer);
+    document.getElementById('simple-arena').style.background='#FCEBEB';
+    document.getElementById('simple-msg').textContent='Too early! Wait for green.';
+    sState='idle';
+  }
+}
+function simpleReset(){
+  clearTimeout(sTimer);sState='idle';sTimes=[];
+  document.getElementById('simple-arena').style.background='var(--bg)';
+  document.getElementById('simple-msg').textContent='Click Start — then click when the screen turns green';
+  document.getElementById('simple-num').style.display='none';
+  ['s-last','s-best','s-avg'].forEach(i=>document.getElementById(i).innerHTML='—');
+  document.getElementById('s-count').textContent='0';
+  document.getElementById('s-dots').innerHTML='';
+}
+
+// ── CHOICE ──
+let cState='idle',cTimer=null,cStart=0,cTimes=[],cCorrect=0,cTotal=0,cTarget='';
+const shapes=['circle','square','triangle'],shapeChar={circle:'●',square:'■',triangle:'▲'};
+function choiceStart(){
+  if(cState==='go')return;
+  cState='waiting';
+  document.getElementById('choice-msg').textContent='Get ready…';
+  document.getElementById('choice-msg').style.display='block';
+  document.getElementById('choice-display').style.display='none';
+  document.getElementById('choice-btns').style.display='none';
+  clearTimeout(cTimer);
+  cTimer=setTimeout(()=>{
+    cTarget=shapes[Math.floor(Math.random()*3)];
+    cState='go';cStart=performance.now();
+    document.getElementById('choice-msg').style.display='none';
+    const disp=document.getElementById('choice-display');
+    disp.style.display='flex';disp.textContent=shapeChar[cTarget];
+    document.getElementById('choice-btns').style.display='flex';
+  },1000+Math.random()*2000);
+}
+function choiceAnswer(s){
+  if(cState!=='go')return;
+  const t=Math.round(performance.now()-cStart);
+  const ok=s===cTarget;cTotal++;if(ok)cCorrect++;
+  document.getElementById('choice-display').style.display='none';
+  document.getElementById('choice-btns').style.display='none';
+  document.getElementById('choice-msg').style.display='block';
+  document.getElementById('choice-msg').textContent=ok?'Correct — '+t+'ms':'Wrong! It was '+shapeChar[cTarget];
+  if(ok){
+    cTimes.push(t);
+    document.getElementById('c-last').innerHTML=ms(t);
+    document.getElementById('c-best').innerHTML=ms(Math.min(...cTimes));
+  }
+  document.getElementById('c-acc').textContent=Math.round(cCorrect/cTotal*100)+'%';
+  document.getElementById('c-count').textContent=cTotal;
+  colorDot('c-dots',ok);cState='idle';
+}
+function choiceReset(){
+  clearTimeout(cTimer);cState='idle';cTimes=[];cCorrect=0;cTotal=0;
+  document.getElementById('choice-msg').textContent='Click Start — then click the shape shown';
+  document.getElementById('choice-msg').style.display='block';
+  document.getElementById('choice-display').style.display='none';
+  document.getElementById('choice-btns').style.display='none';
+  ['c-last','c-best'].forEach(i=>document.getElementById(i).innerHTML='—');
+  document.getElementById('c-acc').textContent='—';document.getElementById('c-count').textContent='0';
+  document.getElementById('c-dots').innerHTML='';
+}
+
+// ── SEQUENCE ──
+let seqLevel=1,seqSeq=[],seqInputArr=[],seqPlaying=false,seqBest=0;
+function seqStart(){
+  if(seqPlaying)return;
+  seqSeq=[];seqInputArr=[];
+  for(let i=0;i<seqLevel+1;i++)seqSeq.push(Math.floor(Math.random()*9));
+  document.getElementById('seq-msg').textContent='Watch the sequence…';
+  document.getElementById('seq-status').textContent='Watching';
+  document.getElementById('seq-len').textContent=seqSeq.length;
+  seqPlaying=true;setSeqClickable(false);playSeq(0);
+}
+function playSeq(i){
+  if(i>=seqSeq.length){
+    setTimeout(()=>{setSeqClickable(true);document.getElementById('seq-msg').textContent='Your turn — repeat the sequence';document.getElementById('seq-status').textContent='Your turn';},400);return;
+  }
+  setTimeout(()=>{
+    const cells=document.querySelectorAll('.seq-cell');
+    cells[seqSeq[i]].classList.add('lit');
+    setTimeout(()=>{cells[seqSeq[i]].classList.remove('lit');playSeq(i+1);},500);
+  },i===0?700:150);
+}
+function setSeqClickable(v){document.querySelectorAll('.seq-cell').forEach(c=>c.style.pointerEvents=v?'auto':'none');}
+function seqInput(idx){
+  if(!seqPlaying)return;
+  seqInputArr.push(idx);
+  const cells=document.querySelectorAll('.seq-cell');
+  const pos=seqInputArr.length-1;
+  if(seqInputArr[pos]!==seqSeq[pos]){
+    cells[idx].classList.add('wrong');
+    setTimeout(()=>cells[idx].classList.remove('wrong'),400);
+    document.getElementById('seq-msg').textContent='Wrong at step '+(pos+1)+'! Press Start to try again.';
+    document.getElementById('seq-status').textContent='Failed';
+    if(seqLevel>seqBest){seqBest=seqLevel;document.getElementById('seq-best').textContent=seqBest;}
+    seqPlaying=false;setSeqClickable(false);return;
+  }
+  cells[idx].classList.add('lit');
+  setTimeout(()=>cells[idx].classList.remove('lit'),200);
+  if(seqInputArr.length===seqSeq.length){
+    seqLevel++;document.getElementById('seq-level').textContent=seqLevel;
+    document.getElementById('seq-msg').textContent='Correct! Level '+seqLevel+' coming up…';
+    document.getElementById('seq-status').textContent='Level up!';
+    seqPlaying=false;setSeqClickable(false);
+    setTimeout(seqStart,1200);
+  }
+}
+function seqReset(){
+  seqLevel=1;seqSeq=[];seqInputArr=[];seqPlaying=false;setSeqClickable(false);
+  document.getElementById('seq-level').textContent='1';document.getElementById('seq-len').textContent='—';
+  document.getElementById('seq-status').textContent='Ready';
+  document.getElementById('seq-msg').textContent='Click Start — watch the pattern, then repeat it';
+}
+
+// ── AIM ──
+let aimActive=false,aimHits=0,aimMissCnt=0,aimTimes=[],aimT0=0,aimEl=null;
+function aimStart(){
+  aimReset();aimActive=true;
+  document.getElementById('aim-msg').textContent='';spawnTarget();
+}
+function spawnTarget(){
+  if(!aimActive)return;
+  const arena=document.getElementById('aim-arena');
+  if(aimEl){aimEl.remove();aimEl=null;}
+  const size=40+Math.random()*32;
+  const x=10+Math.random()*(arena.offsetWidth-size-20);
+  const y=10+Math.random()*(arena.offsetHeight-size-20);
+  const t=document.createElement('div');
+  t.className='aim-target';
+  t.style.cssText='width:'+size+'px;height:'+size+'px;left:'+x+'px;top:'+y+'px';
+  t.onclick=(e)=>{e.stopPropagation();aimHit();};
+  arena.appendChild(t);aimEl=t;aimT0=performance.now();
+}
+function aimHit(){
+  const t=Math.round(performance.now()-aimT0);
+  aimHits++;aimTimes.push(t);
+  document.getElementById('a-last').innerHTML=ms(t);
+  document.getElementById('a-best').innerHTML=ms(Math.min(...aimTimes));
+  document.getElementById('a-hits').textContent=aimHits;
+  addDot('a-dots',t);spawnTarget();
+}
+function aimMiss(e){
+  if(!aimActive)return;
+  if(e.target!==document.getElementById('aim-arena'))return;
+  aimMissCnt++;document.getElementById('a-miss').textContent=aimMissCnt;
+  colorDot('a-dots',false);
+}
+function aimReset(){
+  aimActive=false;aimHits=0;aimMissCnt=0;aimTimes=[];
+  if(aimEl){aimEl.remove();aimEl=null;}
+  document.getElementById('aim-msg').textContent='Click Start — hit every target as fast as possible';
+  ['a-last','a-best'].forEach(i=>document.getElementById(i).innerHTML='—');
+  document.getElementById('a-hits').textContent='0';document.getElementById('a-miss').textContent='0';
+  document.getElementById('a-dots').innerHTML='';
+}
+
+// ── STROOP ──
+const stroopColors=['red','blue','green','amber'];
+const stroopHex={red:'#E24B4A',blue:'#378ADD',green:'#639922',amber:'#EF9F27'};
+let stActive=false,stTarget='',stStart=0,stTimes=[],stCorrect=0,stTotal=0,stTimer=null;
+function stroopStart(){
+  stroopReset();stActive=true;
+  document.getElementById('stroop-prog-wrap').style.display='block';
+  stroopNext();
+}
+function stroopNext(){
+  if(!stActive)return;
+  const words=['Red','Blue','Green','Amber'];
+  const word=words[Math.floor(Math.random()*4)];
+  const remaining=stroopColors.filter(c=>c!==word.toLowerCase());
+  stTarget=Math.random()<0.5?word.toLowerCase():remaining[Math.floor(Math.random()*remaining.length)];
+  const el=document.getElementById('stroop-word');
+  el.style.display='block';el.textContent=word;el.style.color=stroopHex[stTarget];
+  document.getElementById('stroop-msg').textContent='What color is the text?';
+  stStart=performance.now();
+  clearTimeout(stTimer);
+  animProg(3000);
+  stTimer=setTimeout(()=>{if(stActive){stTotal++;stroopNext();}},3000);
+}
+function animProg(dur){
+  const bar=document.getElementById('stroop-prog');
+  bar.style.transition='none';bar.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    bar.style.transition='width '+dur+'ms linear';bar.style.width='0%';
+  }));
+}
+function stroopAnswer(c){
+  if(!stActive)return;
+  clearTimeout(stTimer);
+  const t=Math.round(performance.now()-stStart);
+  const ok=c===stTarget;stTotal++;if(ok){stCorrect++;stTimes.push(t);}
+  document.getElementById('st-last').innerHTML=ok?ms(t):'✗ wrong';
+  if(stTimes.length)document.getElementById('st-best').innerHTML=ms(Math.min(...stTimes));
+  document.getElementById('st-acc').textContent=Math.round(stCorrect/stTotal*100)+'%';
+  document.getElementById('st-score').textContent=stCorrect;
+  colorDot('st-dots',ok);stroopNext();
+}
+function stroopReset(){
+  stActive=false;clearTimeout(stTimer);stTimes=[];stCorrect=0;stTotal=0;
+  document.getElementById('stroop-word').style.display='none';
+  document.getElementById('stroop-msg').textContent='Click Start — name the ink color, not the word';
+  document.getElementById('stroop-prog-wrap').style.display='none';
+  ['st-last','st-best'].forEach(i=>document.getElementById(i).innerHTML='—');
+  document.getElementById('st-acc').textContent='—';document.getElementById('st-score').textContent='0';
+  document.getElementById('st-dots').innerHTML='';
+}
+</script>
+</body>
+</html>
