@@ -247,49 +247,261 @@ header{
 
 let holder = 1;
 
-document.addEventListener("keydown",(e)=>{
+let p1Lives = 5;
+let p2Lives = 5;
 
-    if(e.key.toLowerCase()==="a" && holder===1){
-        passBomb(2);
-    }
+let round = 1;
+let maxRounds = 10;
 
-    if(e.key.toLowerCase()==="l" && holder===2){
-        passBomb(1);
-    }
+let isFake = false;
 
-});
+let fuseTime = 4;
+let timer;
+let timeLeft;
 
-function passBomb(target){
+const bomb = document.getElementById("bomb");
 
-    holder=target;
+const p1 = document.getElementById("p1");
+const p2 = document.getElementById("p2");
 
-    document.getElementById("p1")
-        .classList.toggle("active",holder===1);
+const roundText = document.querySelector(".round");
+const fuseText = document.querySelector(".fuse");
 
-    document.getElementById("p2")
-        .classList.toggle("active",holder===2);
+const livesElements = document.querySelectorAll(".lives");
+const characters = document.querySelectorAll(".character");
+
+function updateLives(){
+
+```
+livesElements[0].textContent = "❤️".repeat(Math.max(0,p1Lives));
+livesElements[1].textContent = "❤️".repeat(Math.max(0,p2Lives));
+```
 
 }
 
-document.addEventListener("click",(e)=>{
+function updateFace(){
 
-    if(window.innerWidth>768) return;
+```
+let ratio = timeLeft / fuseTime;
 
-    if(e.clientX < window.innerWidth/2){
+let face = "🙂";
 
-        if(holder===1){
-            passBomb(2);
-        }
+if(ratio < 0.75) face = "😬";
+if(ratio < 0.50) face = "😰";
+if(ratio < 0.25) face = "😱";
 
+characters[0].textContent = face;
+characters[1].textContent = face;
+```
+
+}
+
+function moveBomb(){
+
+```
+bomb.style.transition = "left .25s ease";
+
+if(holder === 1){
+    bomb.style.left = "25%";
+}else{
+    bomb.style.left = "75%";
+}
+```
+
+}
+
+function passBomb(target){
+
+```
+if(isFake){
+
+    if(target === 1){
+        p1Lives--;
     }else{
+        p2Lives--;
+    }
 
-        if(holder===2){
-            passBomb(1);
-        }
+    updateLives();
+
+    message("FAKE BOMB! Life lost.");
+
+    nextRound();
+    return;
+}
+
+holder = target;
+
+p1.classList.toggle("active",holder===1);
+p2.classList.toggle("active",holder===2);
+
+moveBomb();
+```
+
+}
+
+function startRound(){
+
+```
+clearInterval(timer);
+
+if(round > maxRounds){
+    endGame();
+    return;
+}
+
+isFake = Math.random() < 0.20;
+
+bomb.textContent = isFake ? "🧊" : "💣";
+
+fuseTime = Math.max(1.2,4 - ((round-1)*0.3));
+
+timeLeft = fuseTime;
+
+roundText.textContent =
+    "Round " + round + " / " + maxRounds;
+
+fuseText.textContent =
+    "Fuse: " + fuseTime.toFixed(1) + "s";
+
+timer = setInterval(()=>{
+
+    timeLeft -= 0.1;
+
+    fuseText.textContent =
+        "Fuse: " + Math.max(0,timeLeft).toFixed(1) + "s";
+
+    updateFace();
+
+    if(timeLeft <= 0){
+
+        clearInterval(timer);
+
+        explode();
 
     }
 
+},100);
+```
+
+}
+
+function explode(){
+
+```
+document.body.style.background="#350000";
+
+setTimeout(()=>{
+    document.body.style.background="#090909";
+},250);
+
+if(holder===1){
+    p1Lives--;
+    characters[0].textContent="💀";
+}else{
+    p2Lives--;
+    characters[1].textContent="💀";
+}
+
+updateLives();
+
+if(p1Lives<=0 || p2Lives<=0){
+    endGame();
+    return;
+}
+
+round++;
+
+setTimeout(()=>{
+    characters[0].textContent="🙂";
+    characters[1].textContent="🙂";
+    startRound();
+},1200);
+```
+
+}
+
+function nextRound(){
+
+```
+round++;
+
+if(p1Lives<=0 || p2Lives<=0){
+    endGame();
+    return;
+}
+
+startRound();
+```
+
+}
+
+function message(txt){
+
+```
+fuseText.textContent = txt;
+```
+
+}
+
+function endGame(){
+
+```
+clearInterval(timer);
+
+let winner;
+
+if(p1Lives > p2Lives){
+    winner = "PLAYER 1";
+}else{
+    winner = "PLAYER 2";
+}
+
+alert(
+    winner +
+    " WINS!\n\nYou panicked so hard the bomb felt safe."
+);
+```
+
+}
+
+document.addEventListener("keydown",(e)=>{
+
+```
+if(e.key.toLowerCase()==="a" && holder===1){
+    passBomb(2);
+}
+
+if(e.key.toLowerCase()==="l" && holder===2){
+    passBomb(1);
+}
+```
+
 });
+
+document.addEventListener("click",(e)=>{
+
+```
+if(window.innerWidth > 768) return;
+
+if(e.clientX < window.innerWidth/2){
+
+    if(holder===1){
+        passBomb(2);
+    }
+
+}else{
+
+    if(holder===2){
+        passBomb(1);
+    }
+
+}
+```
+
+});
+
+moveBomb();
+startRound();
 
 </script>
 
