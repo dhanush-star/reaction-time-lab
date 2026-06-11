@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hot Potato Protocol</title>
+
+<style>
+
+:root{
+    --bg:#090909;
+    --card:#111111;
+    --border:#222;
+    --text:#ffffff;
+    --muted:#8a8a8a;
+    --accent:#ff4d4d;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Inter,Arial,sans-serif;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    overflow:hidden;
+}
+
+header{
+    border-bottom:1px solid var(--border);
+    padding:20px 40px;
+}
+
+.logo{
+    font-size:1.3rem;
+    font-weight:700;
+}
+
+.hero{
+    padding:40px;
+}
+
+.hero h1{
+    font-size:4rem;
+    line-height:1;
+    margin-bottom:15px;
+}
+
+.hero p{
+    color:var(--muted);
+    max-width:700px;
+}
+
+.stats{
+    display:flex;
+    gap:60px;
+    margin-top:30px;
+}
+
+.stat h2{
+    font-size:2rem;
+}
+
+.stat span{
+    color:var(--muted);
+    font-size:.9rem;
+}
+
+.game{
+    height:55vh;
+    border-top:1px solid var(--border);
+    display:flex;
+    position:relative;
+}
+
+.player{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+}
+
+.player-name{
+    font-size:1.2rem;
+    margin-bottom:15px;
+}
+
+.lives{
+    margin-bottom:25px;
+    font-size:1.4rem;
+}
+
+.character{
+    font-size:6rem;
+    transition:.2s;
+}
+
+.player.active{
+    background:rgba(255,255,255,.03);
+}
+
+#bomb{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    font-size:5rem;
+    animation:bounce .6s infinite alternate;
+}
+
+@keyframes bounce{
+    from{
+        transform:translate(-50%,-50%) translateY(0);
+    }
+    to{
+        transform:translate(-50%,-50%) translateY(-20px);
+    }
+}
+
+.round-box{
+    position:absolute;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%);
+    text-align:center;
+}
+
+.round{
+    font-size:1.5rem;
+}
+
+.fuse{
+    color:#ff7070;
+    margin-top:6px;
+}
+
+.controls{
+    position:absolute;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    color:var(--muted);
+}
+
+.mobile-hint{
+    display:none;
+}
+
+@media(max-width:768px){
+
+.hero h1{
+    font-size:2.5rem;
+}
+
+.stats{
+    gap:20px;
+}
+
+.character{
+    font-size:4rem;
+}
+
+.mobile-hint{
+    display:block;
+}
+
+.desktop-hint{
+    display:none;
+}
+
+}
+
+</style>
+</head>
+<body>
+
+<header>
+    <div class="logo">💣 Hot Potato Protocol</div>
+</header>
+
+<section class="hero">
+    <h1>Pass Fast.<br>Panic Faster.</h1>
+
+    <p>
+        Survive 10 rounds. Hold a real bomb and explode.
+        Pass a fake bomb and lose a life.
+    </p>
+
+    <div class="stats">
+        <div class="stat">
+            <h2>10</h2>
+            <span>Rounds</span>
+        </div>
+
+        <div class="stat">
+            <h2>5</h2>
+            <span>Lives</span>
+        </div>
+
+        <div class="stat">
+            <h2>AI</h2>
+            <span>Coming Next</span>
+        </div>
+    </div>
+</section>
+
+<div class="game">
+
+    <div class="round-box">
+        <div class="round">Round 1 / 10</div>
+        <div class="fuse">Fuse: 4.0s</div>
+    </div>
+
+    <div id="bomb">💣</div>
+
+    <div class="player active" id="p1">
+        <div class="player-name">PLAYER 1</div>
+        <div class="lives">❤️❤️❤️❤️❤️</div>
+        <div class="character">🙂</div>
+    </div>
+
+    <div class="player" id="p2">
+        <div class="player-name">PLAYER 2</div>
+        <div class="lives">❤️❤️❤️❤️❤️</div>
+        <div class="character">🙂</div>
+    </div>
+
+    <div class="controls">
+        <div class="desktop-hint">
+            A = Pass (P1) | L = Pass (P2)
+        </div>
+
+        <div class="mobile-hint">
+            Tap Left / Right Side
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+let holder = 1;
+
+document.addEventListener("keydown",(e)=>{
+
+    if(e.key.toLowerCase()==="a" && holder===1){
+        passBomb(2);
+    }
+
+    if(e.key.toLowerCase()==="l" && holder===2){
+        passBomb(1);
+    }
+
+});
+
+function passBomb(target){
+
+    holder=target;
+
+    document.getElementById("p1")
+        .classList.toggle("active",holder===1);
+
+    document.getElementById("p2")
+        .classList.toggle("active",holder===2);
+
+}
+
+document.addEventListener("click",(e)=>{
+
+    if(window.innerWidth>768) return;
+
+    if(e.clientX < window.innerWidth/2){
+
+        if(holder===1){
+            passBomb(2);
+        }
+
+    }else{
+
+        if(holder===2){
+            passBomb(1);
+        }
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
