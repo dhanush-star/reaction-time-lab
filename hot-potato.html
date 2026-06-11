@@ -8,246 +8,252 @@
   @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;600;700;900&display=swap');
 
   :root {
-    --bg: #0d0d0d;
-    --surface: #1a1a1a;
-    --surface2: #252525;
-    --orange: #ff6b00;
-    --red: #ff2020;
-    --green: #00e676;
-    --yellow: #ffd600;
-    --blue: #2979ff;
-    --fake-blue: #00cfff;
-    --text: #f5f5f5;
-    --muted: #888;
-    --fuse-safe: #00e676;
-    --fuse-mid: #ffd600;
-    --fuse-danger: #ff2020;
+    --bg:#0d0d0d; --surface:#1a1a1a; --surface2:#252525;
+    --orange:#ff6b00; --red:#ff2020; --green:#00e676;
+    --yellow:#ffd600; --blue:#2979ff; --fake-blue:#00cfff;
+    --text:#f5f5f5; --muted:#888;
+    --fuse-safe:#00e676; --fuse-mid:#ffd600; --fuse-danger:#ff2020;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { height:100%; }
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-x: hidden;
+    background:var(--bg); color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh; display:flex; flex-direction:column;
+    align-items:center; overflow-x:hidden;
   }
 
   /* ── SCREENS ── */
-  .screen { display: none; width: 100%; max-width: 520px; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 24px 16px; }
-  .screen.active { display: flex; }
+  .screen { display:none; width:100%; max-width:520px; min-height:100vh;
+    flex-direction:column; align-items:center; justify-content:center; padding:24px 16px; }
+  .screen.active { display:flex; }
 
-  /* ── TITLE SCREEN ── */
-  .title-bomb { font-size: 96px; animation: float 2s ease-in-out infinite; line-height: 1; }
+  /* ── TITLE ── */
+  .title-bomb { font-size:96px; animation:float 2s ease-in-out infinite; line-height:1; }
   @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-
   .title-logo {
-    font-family: 'Bangers', cursive;
-    font-size: clamp(40px, 10vw, 72px);
-    letter-spacing: 2px;
-    background: linear-gradient(135deg, var(--orange), var(--red));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-align: center;
-    line-height: 1.1;
-    margin: 12px 0 4px;
+    font-family:'Bangers',cursive; font-size:clamp(40px,10vw,72px);
+    letter-spacing:2px;
+    background:linear-gradient(135deg,var(--orange),var(--red));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    text-align:center; line-height:1.1; margin:12px 0 4px;
   }
-  .title-sub { color: var(--muted); font-size: 13px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 36px; }
-
-  .stats-row { display: flex; gap: 20px; margin-bottom: 36px; }
-  .stat-pill {
-    background: var(--surface);
-    border: 1px solid #333;
-    border-radius: 12px;
-    padding: 12px 20px;
-    text-align: center;
-  }
-  .stat-pill .num { font-family: 'Bangers', cursive; font-size: 32px; color: var(--orange); }
-  .stat-pill .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-
-  .mode-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
-  .mode-btns { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 300px; margin-bottom: 28px; }
-
-  .btn {
-    border: none; cursor: pointer; border-radius: 12px; font-weight: 700; transition: transform .1s, opacity .1s;
-    font-family: 'Inter', sans-serif;
-  }
-  .btn:active { transform: scale(.97); opacity: .9; }
-
-  .btn-mode {
-    padding: 18px 24px;
-    font-size: 16px;
-    display: flex; align-items: center; gap: 12px;
-    background: var(--surface);
-    border: 2px solid #333;
-    color: var(--text);
-  }
-  .btn-mode:hover { border-color: var(--orange); }
-  .btn-mode .icon { font-size: 26px; }
-  .btn-mode .label { text-align: left; }
-  .btn-mode .label small { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
-
-  .btn-primary {
-    padding: 16px 32px; font-size: 18px;
-    background: linear-gradient(135deg, var(--orange), var(--red));
-    color: #fff; width: 100%; max-width: 300px;
-  }
-  .btn-secondary {
-    padding: 12px 24px; font-size: 14px;
-    background: var(--surface2); color: var(--muted);
-  }
+  .title-sub { color:var(--muted); font-size:13px; letter-spacing:3px; text-transform:uppercase; margin-bottom:36px; }
+  .stats-row { display:flex; gap:20px; margin-bottom:36px; }
+  .stat-pill { background:var(--surface); border:1px solid #333; border-radius:12px; padding:12px 20px; text-align:center; }
+  .stat-pill .num { font-family:'Bangers',cursive; font-size:32px; color:var(--orange); }
+  .stat-pill .lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+  .mode-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px; }
+  .mode-btns { display:flex; flex-direction:column; gap:12px; width:100%; max-width:300px; margin-bottom:28px; }
+  .btn { border:none; cursor:pointer; border-radius:12px; font-weight:700;
+    transition:transform .1s,opacity .1s; font-family:'Inter',sans-serif; }
+  .btn:active { transform:scale(.97); opacity:.9; }
+  .btn-mode { padding:18px 24px; font-size:16px; display:flex; align-items:center; gap:12px;
+    background:var(--surface); border:2px solid #333; color:var(--text); }
+  .btn-mode:hover { border-color:var(--orange); }
+  .btn-mode .icon { font-size:26px; }
+  .btn-mode .label { text-align:left; }
+  .btn-mode .label small { display:block; color:var(--muted); font-size:12px; font-weight:400; }
+  .btn-primary { padding:16px 32px; font-size:18px;
+    background:linear-gradient(135deg,var(--orange),var(--red));
+    color:#fff; width:100%; max-width:300px; }
+  .btn-secondary { padding:12px 24px; font-size:14px; background:var(--surface2); color:var(--muted); }
 
   /* ── HOW TO PLAY ── */
-  .rules { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 340px; margin-bottom: 28px; }
-  .rule { background: var(--surface); border-radius: 10px; padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; font-size: 14px; }
-  .rule .ri { font-size: 22px; flex-shrink: 0; }
-  .rule b { color: var(--text); }
-  .rule span { color: var(--muted); }
+  .rules { display:flex; flex-direction:column; gap:10px; width:100%; max-width:340px; margin-bottom:28px; }
+  .rule { background:var(--surface); border-radius:10px; padding:12px 16px; display:flex; gap:12px; align-items:flex-start; font-size:14px; }
+  .rule .ri { font-size:22px; flex-shrink:0; }
+  .rule b { color:var(--text); }
+  .rule span { color:var(--muted); }
 
   /* ── GAME SCREEN ── */
-  #gameScreen { justify-content: space-between; padding: 0; gap: 0; }
+  #gameScreen { justify-content:space-between; padding:0; gap:0; position:relative; }
 
   .game-header {
-    width: 100%; background: var(--surface);
-    border-bottom: 1px solid #2a2a2a;
-    padding: 10px 16px;
-    display: flex; align-items: center; justify-content: space-between;
+    width:100%; background:var(--surface);
+    border-bottom:1px solid #2a2a2a;
+    padding:10px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    position:relative; z-index:10;
   }
-  .round-badge { font-family: 'Bangers', cursive; font-size: 18px; color: var(--orange); }
-  .fuse-wrap { flex: 1; margin: 0 16px; }
-  .fuse-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; display: flex; justify-content: space-between; }
-  .fuse-bar-bg { height: 8px; background: #2a2a2a; border-radius: 4px; overflow: hidden; }
-  .fuse-bar { height: 100%; border-radius: 4px; transition: width .1s linear, background .3s; background: var(--fuse-safe); }
-  .header-btn { background: none; border: 1px solid #333; color: var(--muted); border-radius: 8px; padding: 6px 10px; font-size: 12px; cursor: pointer; }
+  .round-badge { font-family:'Bangers',cursive; font-size:18px; color:var(--orange); }
+  .fuse-wrap { flex:1; margin:0 16px; }
+  .fuse-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;
+    margin-bottom:4px; display:flex; justify-content:space-between; }
+  .fuse-bar-bg { height:8px; background:#2a2a2a; border-radius:4px; overflow:hidden; }
+  .fuse-bar { height:100%; border-radius:4px; transition:width .1s linear,background .3s; background:var(--fuse-safe); }
+  .header-btn { background:none; border:1px solid #333; color:var(--muted);
+    border-radius:8px; padding:6px 10px; font-size:12px; cursor:pointer; }
 
-  /* Player zones */
+  /* ── PLAYER ZONES ── */
   .players-wrap {
-    flex: 1; width: 100%;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: space-between;
-    padding: 16px;
-    gap: 12px;
+    flex:1; width:100%;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:space-between;
+    padding:12px 16px; gap:10px;
+    position:relative;
   }
-
   .player-zone {
-    width: 100%; flex: 1;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    border-radius: 16px; gap: 6px;
-    border: 2px solid transparent;
-    transition: border-color .2s, background .2s;
-    cursor: pointer; position: relative; overflow: hidden;
-    min-height: 120px;
+    width:100%; flex:1;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border-radius:16px; gap:6px;
+    border:2px solid transparent;
+    transition:border-color .2s, background .2s, box-shadow .2s;
+    cursor:pointer; position:relative; overflow:hidden;
+    min-height:110px; user-select:none;
   }
-  .player-zone.p1-zone { background: #130a00; }
-  .player-zone.p2-zone { background: #00090d; }
-  .player-zone.has-bomb.p1-zone { border-color: var(--orange); background: #1f1000; }
-  .player-zone.has-bomb.p2-zone { border-color: var(--blue); background: #00101a; }
-  .player-zone.has-fake { border-color: var(--fake-blue) !important; }
+  .player-zone.p1-zone { background:#130a00; }
+  .player-zone.p2-zone { background:#00090d; }
+  .player-zone.has-bomb.p1-zone { border-color:var(--orange); background:#1f1000; box-shadow:0 0 24px rgba(255,107,0,.25); }
+  .player-zone.has-bomb.p2-zone { border-color:var(--blue); background:#00101a; box-shadow:0 0 24px rgba(41,121,255,.25); }
+  .player-zone.has-fake { border-color:var(--fake-blue) !important; box-shadow:0 0 24px rgba(0,207,255,.25) !important; }
 
-  .player-zone.flash-pass { animation: flashPass .25s; }
-  @keyframes flashPass { 0%{opacity:1} 50%{opacity:.3} 100%{opacity:1} }
-  .player-zone.explode { animation: explodeZone .5s; }
-  @keyframes explodeZone { 0%{background:#ff2020} 100%{background:inherit} }
+  /* Pass burst animation on zones */
+  .player-zone.burst::after {
+    content:''; position:absolute; inset:0; border-radius:14px;
+    background:radial-gradient(circle, rgba(255,255,255,.25) 0%, transparent 70%);
+    animation:burstFade .35s ease-out forwards;
+  }
+  @keyframes burstFade { 0%{opacity:1} 100%{opacity:0} }
 
-  .player-name { font-family: 'Bangers', cursive; font-size: 22px; letter-spacing: 1px; }
-  .player-lives { font-size: 22px; letter-spacing: 2px; min-height: 28px; }
-  .player-face { font-size: 36px; transition: font-size .2s; }
-  .player-hint { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .player-zone.explode-zone { animation:explodeShake .45s ease-out; }
+  @keyframes explodeShake {
+    0%{transform:translate(0,0)}
+    15%{transform:translate(-6px,4px)}
+    30%{transform:translate(6px,-4px)}
+    45%{transform:translate(-4px,6px)}
+    60%{transform:translate(4px,-2px)}
+    75%{transform:translate(-2px,2px)}
+    100%{transform:translate(0,0)}
+  }
 
-  /* Bomb arena */
+  .player-name { font-family:'Bangers',cursive; font-size:22px; letter-spacing:1px; }
+  .player-lives { font-size:22px; letter-spacing:2px; min-height:28px; }
+  .player-face { font-size:36px; transition:all .2s; }
+  .player-hint { font-size:11px; color:var(--muted); margin-top:2px; }
+
+  /* ── FLYING BOMB (absolutely positioned over players-wrap) ── */
+  #flyingBomb {
+    position:absolute;
+    font-size:56px;
+    pointer-events:none;
+    z-index:50;
+    display:none;
+    transform-origin:center center;
+    filter:drop-shadow(0 0 14px var(--orange));
+  }
+  #flyingBomb.fake { filter:drop-shadow(0 0 14px var(--fake-blue)); }
+
+  /* The static bomb shown in center between passes */
   .bomb-arena {
-    display: flex; align-items: center; justify-content: center;
-    padding: 8px 0; width: 100%; gap: 16px;
+    display:flex; align-items:center; justify-content:center;
+    padding:4px 0; width:100%; gap:16px; position:relative;
   }
-  .bomb-holder { position: relative; display: flex; align-items: center; justify-content: center; }
+  .bomb-holder { position:relative; display:flex; align-items:center; justify-content:center; }
   #bombEmoji {
-    font-size: 64px;
-    transition: transform .15s;
-    filter: drop-shadow(0 0 12px var(--orange));
-    animation: bombPulse 1s ease-in-out infinite;
-    cursor: default;
+    font-size:64px;
+    filter:drop-shadow(0 0 12px var(--orange));
+    animation:bombPulse 1s ease-in-out infinite;
+    cursor:default;
+    transition:opacity .1s;
   }
-  #bombEmoji.fake { filter: drop-shadow(0 0 12px var(--fake-blue)); animation: fakePulse 1.5s ease-in-out infinite; }
+  #bombEmoji.fake { filter:drop-shadow(0 0 12px var(--fake-blue)); animation:fakePulse 1.5s ease-in-out infinite; }
+  #bombEmoji.hidden { opacity:0; }
   @keyframes bombPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
   @keyframes fakePulse { 0%,100%{transform:scale(1) rotate(-3deg)} 50%{transform:scale(1.05) rotate(3deg)} }
-  .bomb-face {
-    position: absolute; font-size: 22px;
-    top: 50%; left: 50%; transform: translate(-50%, -60%);
-    pointer-events: none;
-  }
-  .pass-arrow { font-size: 28px; color: var(--muted); }
+  .bomb-face { position:absolute; font-size:22px; top:50%; left:50%; transform:translate(-50%,-60%); pointer-events:none; }
   .fake-tag {
-    position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%);
-    background: var(--fake-blue); color: #000; font-size: 10px; font-weight: 700;
-    padding: 2px 8px; border-radius: 20px; letter-spacing: 1px; white-space: nowrap;
-    opacity: 0; transition: opacity .3s;
+    position:absolute; bottom:-22px; left:50%; transform:translateX(-50%);
+    background:var(--fake-blue); color:#000; font-size:10px; font-weight:700;
+    padding:2px 8px; border-radius:20px; letter-spacing:1px; white-space:nowrap;
+    opacity:0; transition:opacity .3s;
   }
-  .bomb-holder.show-fake .fake-tag { opacity: 1; }
+  .bomb-holder.show-fake .fake-tag { opacity:1; }
 
-  /* Round message overlay */
-  .round-msg {
-    position: fixed; inset: 0; background: rgba(0,0,0,.85);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    z-index: 100; opacity: 0; pointer-events: none; transition: opacity .3s;
+  /* Fuse spark particles */
+  .spark {
+    position:absolute; width:6px; height:6px; border-radius:50%;
+    pointer-events:none; z-index:60;
+    animation:sparkFly var(--dur,0.6s) ease-out forwards;
   }
-  .round-msg.show { opacity: 1; pointer-events: all; }
-  .round-msg .emoji { font-size: 80px; animation: popIn .4s cubic-bezier(.175,.885,.32,1.275); }
-  .round-msg .msg-title { font-family: 'Bangers', cursive; font-size: 48px; margin: 8px 0 4px; }
-  .round-msg .msg-sub { color: var(--muted); font-size: 16px; text-align: center; padding: 0 24px; }
-  .round-msg .msg-continue { margin-top: 24px; font-size: 14px; color: #555; }
+  @keyframes sparkFly {
+    0% { transform:translate(0,0) scale(1); opacity:1; }
+    100% { transform:translate(var(--tx,20px),var(--ty,-30px)) scale(0); opacity:0; }
+  }
+
+  /* Screen-shake on the whole game area */
+  #gameScreen.shake { animation:screenShake .5s ease-out; }
+  @keyframes screenShake {
+    0%,100%{transform:translate(0,0)}
+    10%{transform:translate(-8px,5px)}
+    25%{transform:translate(8px,-5px)}
+    40%{transform:translate(-5px,8px)}
+    55%{transform:translate(5px,-3px)}
+    70%{transform:translate(-3px,3px)}
+    85%{transform:translate(2px,-2px)}
+  }
+
+  /* Explosion flash overlay */
+  #explodeFlash {
+    position:fixed; inset:0; background:#ff3300;
+    pointer-events:none; opacity:0; z-index:200;
+    transition:opacity .05s;
+  }
+
+  /* ── ROUND MESSAGE ── */
+  .round-msg {
+    position:fixed; inset:0; background:rgba(0,0,0,.85);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    z-index:100; opacity:0; pointer-events:none; transition:opacity .3s;
+  }
+  .round-msg.show { opacity:1; pointer-events:all; }
+  .round-msg .emoji { font-size:80px; animation:popIn .4s cubic-bezier(.175,.885,.32,1.275); }
+  .round-msg .msg-title { font-family:'Bangers',cursive; font-size:48px; margin:8px 0 4px; }
+  .round-msg .msg-sub { color:var(--muted); font-size:16px; text-align:center; padding:0 24px; }
+  .round-msg .msg-continue { margin-top:24px; font-size:14px; color:#555; }
   @keyframes popIn { 0%{transform:scale(0)} 100%{transform:scale(1)} }
 
-  /* End screen */
-  .end-emoji { font-size: 96px; animation: float 2s ease-in-out infinite; }
-  .end-title { font-family: 'Bangers', cursive; font-size: 56px; background: linear-gradient(135deg, var(--orange), var(--red)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: center; line-height: 1.1; }
-  .end-winner { font-size: 20px; color: var(--green); margin: 8px 0; font-weight: 700; text-align: center; }
+  /* ── END SCREEN ── */
+  .end-emoji { font-size:96px; animation:float 2s ease-in-out infinite; }
+  .end-title { font-family:'Bangers',cursive; font-size:56px;
+    background:linear-gradient(135deg,var(--orange),var(--red));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    text-align:center; line-height:1.1; }
+  .end-winner { font-size:20px; color:var(--green); margin:8px 0; font-weight:700; text-align:center; }
   .roast-box {
-    background: var(--surface); border: 1px solid #333; border-radius: 12px;
-    padding: 16px 20px; max-width: 320px; font-size: 15px; line-height: 1.5;
-    color: var(--text); text-align: center; margin: 16px 0;
-    position: relative;
+    background:var(--surface); border:1px solid #333; border-radius:12px;
+    padding:16px 20px; max-width:320px; font-size:15px; line-height:1.5;
+    color:var(--text); text-align:center; margin:16px 0; position:relative;
   }
-  .roast-box::before { content: '"'; font-family: 'Bangers', cursive; font-size: 48px; color: var(--orange); position: absolute; top: -10px; left: 12px; line-height: 1; }
-  .end-stats { display: flex; gap: 16px; margin: 16px 0; }
-  .end-stat { background: var(--surface); border-radius: 10px; padding: 10px 18px; text-align: center; }
-  .end-stat .en { font-family: 'Bangers', cursive; font-size: 28px; color: var(--yellow); }
-  .end-stat .el { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+  .roast-box::before { content:'"'; font-family:'Bangers',cursive; font-size:48px; color:var(--orange);
+    position:absolute; top:-10px; left:12px; line-height:1; }
+  .end-stats { display:flex; gap:16px; margin:16px 0; }
+  .end-stat { background:var(--surface); border-radius:10px; padding:10px 18px; text-align:center; }
+  .end-stat .en { font-family:'Bangers',cursive; font-size:28px; color:var(--yellow); }
+  .end-stat .el { font-size:11px; color:var(--muted); text-transform:uppercase; }
+  .btn-row { display:flex; gap:12px; margin-top:4px; }
+  .tap-hint { font-size:12px; color:var(--muted); text-align:center; padding:8px 16px 12px; }
 
-  .btn-row { display: flex; gap: 12px; margin-top: 4px; }
-
-  /* 1P instruction overlay */
-  .tap-hint { font-size: 12px; color: var(--muted); text-align: center; padding: 8px 16px 12px; }
-
-  /* Sweat drops overlay on bomb */
-  .sweat { position: absolute; font-size: 14px; pointer-events: none; }
-
-  /* Responsive */
-  @media (max-width: 380px) {
-    #bombEmoji { font-size: 52px; }
-    .player-face { font-size: 28px; }
-    .player-name { font-size: 18px; }
+  @media (max-width:380px) {
+    #bombEmoji { font-size:52px; } .player-face { font-size:28px; } .player-name { font-size:18px; }
   }
 </style>
 </head>
 <body>
 
-<!-- ══════════ TITLE SCREEN ══════════ -->
+<!-- EXPLOSION FLASH -->
+<div id="explodeFlash"></div>
+
+<!-- ══ TITLE SCREEN ══ -->
 <div id="titleScreen" class="screen active">
   <div class="title-bomb">💣</div>
   <div class="title-logo">Hot Potato<br>Protocol</div>
   <div class="title-sub">Pass Fast · Panic Faster</div>
-
   <div class="stats-row">
     <div class="stat-pill"><div class="num">10</div><div class="lbl">Rounds</div></div>
     <div class="stat-pill"><div class="num">5</div><div class="lbl">Lives</div></div>
     <div class="stat-pill"><div class="num">2</div><div class="lbl">Modes</div></div>
   </div>
-
   <div class="mode-title">Choose Mode</div>
   <div class="mode-btns">
     <button class="btn btn-mode" onclick="startGame(1)">
@@ -259,17 +265,16 @@
       <span class="label">2 Player Mode<small>Pass to your friend. One phone, two sweaty thumbs.</small></span>
     </button>
   </div>
-
   <button class="btn btn-secondary" onclick="showHow()">📖 How to Play</button>
 </div>
 
-<!-- ══════════ HOW TO PLAY ══════════ -->
+<!-- ══ HOW TO PLAY ══ -->
 <div id="howScreen" class="screen">
   <div style="font-family:'Bangers',cursive;font-size:36px;color:var(--orange);margin-bottom:20px;">How To Play</div>
   <div class="rules">
-    <div class="rule"><span class="ri">💣</span><div><b>Real Bomb</b><br><span>A glowing orange bomb bounces between players. Pass it before the fuse hits zero — or BOOM.</span></div></div>
+    <div class="rule"><span class="ri">💣</span><div><b>Real Bomb</b><br><span>A glowing bomb bounces between players. Pass it before the fuse hits zero — or BOOM.</span></div></div>
     <div class="rule"><span class="ri">🔵</span><div><b>Fake Bomb</b><br><span>Sometimes a blue bomb appears. DO NOT pass it — hold it until the round ends. Passing a fake loses a life.</span></div></div>
-    <div class="rule"><span class="ri">❤️</span><div><b>Lives</b><br><span>Each player starts with 5 lives. Explode or wrongly pass a fake = lose a life. Zero lives = eliminated.</span></div></div>
+    <div class="rule"><span class="ri">❤️</span><div><b>Lives</b><br><span>Each player starts with 5 lives. Explode or wrongly pass a fake = lose a life.</span></div></div>
     <div class="rule"><span class="ri">⚡</span><div><b>Fuse Shrinks</b><br><span>Every round the fuse gets shorter. Round 10 is a heart attack.</span></div></div>
     <div class="rule"><span class="ri">🏆</span><div><b>Win</b><br><span>Survive all 10 rounds. The loser gets roasted.</span></div></div>
   </div>
@@ -280,7 +285,7 @@
   <button class="btn btn-primary" onclick="showTitle()" style="margin-top:20px;">← Back</button>
 </div>
 
-<!-- ══════════ GAME SCREEN ══════════ -->
+<!-- ══ GAME SCREEN ══ -->
 <div id="gameScreen" class="screen">
   <div class="game-header">
     <div class="round-badge">Round <span id="roundNum">1</span>/10</div>
@@ -291,8 +296,11 @@
     <button class="header-btn" onclick="pauseGame()">⏸</button>
   </div>
 
-  <div class="players-wrap">
-    <!-- P1 zone (top in 2P, or "CPU" in 1P) -->
+  <div class="players-wrap" id="playersWrap">
+    <!-- Flying bomb (animated, absolute) -->
+    <div id="flyingBomb">💣<span id="flyingFace" style="position:absolute;font-size:20px;top:50%;left:50%;transform:translate(-50%,-60%)">😐</span></div>
+
+    <!-- P1 zone -->
     <div class="player-zone p1-zone" id="p1Zone" onclick="handleZoneTap(1)">
       <div class="player-name" id="p1Name">PLAYER 1</div>
       <div class="player-lives" id="p1Lives">❤️❤️❤️❤️❤️</div>
@@ -300,15 +308,13 @@
       <div class="player-hint" id="p1Hint">Tap here / press A</div>
     </div>
 
-    <!-- Bomb arena (center) -->
+    <!-- Static bomb center -->
     <div class="bomb-arena">
-      <div style="font-size:13px;color:var(--muted);min-width:30px;text-align:center;" id="arrowLeft">←</div>
       <div class="bomb-holder" id="bombHolder">
         <div id="bombEmoji">💣</div>
         <div class="bomb-face" id="bombFace">😐</div>
-        <div class="fake-tag" id="fakeTag">FAKE</div>
+        <div class="fake-tag" id="fakeTag">⚠️ FAKE</div>
       </div>
-      <div style="font-size:13px;color:var(--muted);min-width:30px;text-align:center;" id="arrowRight">→</div>
     </div>
 
     <!-- P2 zone -->
@@ -323,7 +329,7 @@
   <div class="tap-hint" id="tapHint">Tap your zone to pass the bomb!</div>
 </div>
 
-<!-- ══════════ ROUND MESSAGE OVERLAY ══════════ -->
+<!-- ══ ROUND MESSAGE OVERLAY ══ -->
 <div class="round-msg" id="roundMsg">
   <div class="emoji" id="msgEmoji">💥</div>
   <div class="msg-title" id="msgTitle">BOOM!</div>
@@ -331,7 +337,7 @@
   <div class="msg-continue" id="msgContinue">Tap anywhere to continue...</div>
 </div>
 
-<!-- ══════════ END SCREEN ══════════ -->
+<!-- ══ END SCREEN ══ -->
 <div id="endScreen" class="screen">
   <div class="end-emoji" id="endEmoji">🏆</div>
   <div class="end-title" id="endTitle">SURVIVED!</div>
@@ -349,386 +355,455 @@
 </div>
 
 <script>
-// ══════════════════════════════════════════
+// ══════════════════════════════════
 //  STATE
-// ══════════════════════════════════════════
-let mode = 2; // 1 or 2
-let round = 1;
-const MAX_ROUNDS = 10;
-const MAX_LIVES = 5;
-let lives = [MAX_LIVES, MAX_LIVES]; // [p1, p2]
-let bombHolder = 0; // 0=p1, 1=p2
-let isFake = false;
-let fuseMax = 4.0;
-let fuseLeft = 4.0;
-let fuseInterval = null;
-let roundActive = false;
-let paused = false;
-let fakesThisRound = false;
-let fakesTotal = 0;
-let boomsTotal = 0;
-let roundTimeout = null;
+// ══════════════════════════════════
+let mode=2, round=1;
+const MAX_ROUNDS=10, MAX_LIVES=5;
+let lives=[MAX_LIVES,MAX_LIVES];
+let bombHolder=0, isFake=false;
+let fuseMax=4.0, fuseLeft=4.0;
+let fuseInterval=null, roundTimeout=null;
+let roundActive=false, paused=false, isAnimating=false;
+let fakesTotal=0, boomsTotal=0;
 
 const ROASTS = {
-  p1: [
-    "Player 1 panicked so hard they forgot how fingers work.",
-    "Player 1 saw a bomb and short-circuited. Classic.",
-    "Player 1 held the hot potato like it owed them money.",
-    "Even the bomb felt bad for Player 1.",
-    "Player 1's reaction time? Geological."
-  ],
-  p2: [
-    "Player 2 panicked so hard they forgot how fingers work.",
-    "Player 2 saw a bomb and short-circuited. Classic.",
-    "Player 2 held the hot potato like it owed them money.",
-    "Even the bomb felt bad for Player 2.",
-    "Player 2's reaction time? Geological."
-  ],
-  solo: [
-    "You panicked. The bomb knew it before you did.",
-    "Solo mode. Solo failure. Impressive.",
-    "The bomb outlasted your courage. By a lot.",
-    "10 rounds seemed like a lot, huh?",
-    "Even playing alone you managed to lose. Respect."
-  ]
+  p1:["Player 1 panicked so hard they forgot how fingers work.",
+      "Player 1 saw a bomb and short-circuited. Classic.",
+      "Player 1 held the hot potato like it owed them money.",
+      "Even the bomb felt bad for Player 1.",
+      "Player 1's reaction time? Geological."],
+  p2:["Player 2 panicked so hard they forgot how fingers work.",
+      "Player 2 saw a bomb and short-circuited. Classic.",
+      "Player 2 held the hot potato like it owed them money.",
+      "Even the bomb felt bad for Player 2.",
+      "Player 2's reaction time? Geological."],
+  solo:["You panicked. The bomb knew it before you did.",
+        "Solo mode. Solo failure. Impressive.",
+        "The bomb outlasted your courage. By a lot.",
+        "10 rounds seemed like a lot, huh?",
+        "Even playing alone you managed to lose. Respect."]
 };
 
-// ══════════════════════════════════════════
-//  NAVIGATION
-// ══════════════════════════════════════════
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+// ══════════════════════════════════
+//  NAV
+// ══════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-function showTitle() { stopFuse(); showScreen('titleScreen'); }
-function showHow() { showScreen('howScreen'); }
+function showTitle(){ stopFuse(); showScreen('titleScreen'); }
+function showHow(){ showScreen('howScreen'); }
 
-// ══════════════════════════════════════════
-//  GAME INIT
-// ══════════════════════════════════════════
-function startGame(m) {
-  mode = m;
-  round = 1;
-  lives = [MAX_LIVES, MAX_LIVES];
-  fakesTotal = 0;
-  boomsTotal = 0;
-  fuseMax = 4.0;
-
-  // Set up names and hints
-  if (mode === 1) {
-    document.getElementById('p1Name').textContent = 'YOU';
-    document.getElementById('p2Name').textContent = 'CPU';
-    document.getElementById('p1Hint').textContent = 'Tap here to PASS';
-    document.getElementById('p2Hint').textContent = '(auto)';
-    document.getElementById('tapHint').textContent = '1P Mode — Tap your zone to pass!';
+// ══════════════════════════════════
+//  INIT
+// ══════════════════════════════════
+function startGame(m){
+  mode=m; round=1; lives=[MAX_LIVES,MAX_LIVES];
+  fakesTotal=0; boomsTotal=0; fuseMax=4.0; isAnimating=false;
+  if(mode===1){
+    document.getElementById('p1Name').textContent='YOU';
+    document.getElementById('p2Name').textContent='CPU';
+    document.getElementById('p1Hint').textContent='Tap here to PASS';
+    document.getElementById('p2Hint').textContent='(auto)';
+    document.getElementById('tapHint').textContent='1P Mode — Tap your zone to pass!';
   } else {
-    document.getElementById('p1Name').textContent = 'PLAYER 1';
-    document.getElementById('p2Name').textContent = 'PLAYER 2';
-    document.getElementById('p1Hint').textContent = 'Tap here / press A';
-    document.getElementById('p2Hint').textContent = 'Tap here / press L';
-    document.getElementById('tapHint').textContent = 'Tap your zone to pass the bomb!';
+    document.getElementById('p1Name').textContent='PLAYER 1';
+    document.getElementById('p2Name').textContent='PLAYER 2';
+    document.getElementById('p1Hint').textContent='Tap here / press A';
+    document.getElementById('p2Hint').textContent='Tap here / press L';
+    document.getElementById('tapHint').textContent='Tap your zone to pass the bomb!';
   }
-
   showScreen('gameScreen');
   updateLivesDisplay();
   startRound();
 }
+function restartSame(){ startGame(mode); }
 
-function restartSame() { startGame(mode); }
-
-// ══════════════════════════════════════════
-//  ROUND LOGIC
-// ══════════════════════════════════════════
-function startRound() {
-  if (round > MAX_ROUNDS) { endGame('survived'); return; }
-
-  // fuse gets shorter each round: starts at 4s, -0.25s per round, min 1.2s
-  fuseMax = Math.max(1.2, 4.0 - (round - 1) * 0.25);
-  fuseLeft = fuseMax;
-  isFake = Math.random() < 0.25; // 25% chance fake each round
-  fakesThisRound = isFake;
-  if (isFake) fakesTotal++;
-
-  // bomb starts with p1 in round 1, alternates by round
-  bombHolder = (round % 2 === 1) ? 0 : 1;
-
-  roundActive = true;
-  document.getElementById('roundNum').textContent = round;
+// ══════════════════════════════════
+//  ROUND
+// ══════════════════════════════════
+function startRound(){
+  if(round>MAX_ROUNDS){ endGame('survived'); return; }
+  fuseMax=Math.max(1.2, 4.0-(round-1)*0.25);
+  fuseLeft=fuseMax;
+  isFake=Math.random()<0.25;
+  if(isFake) fakesTotal++;
+  bombHolder=(round%2===1)?0:1;
+  roundActive=true; isAnimating=false;
+  document.getElementById('roundNum').textContent=round;
   updateBombVisual();
   updateZones();
   updateFaceByFuse();
   startFuse();
-
-  // CPU logic in 1P: if bomb is with CPU, auto-pass after random delay
-  if (mode === 1 && bombHolder === 1) {
-    scheduleCpuPass();
-  }
+  if(mode===1 && bombHolder===1) scheduleCpuPass();
 }
 
-function scheduleCpuPass() {
-  if (!roundActive) return;
-  const delay = 400 + Math.random() * 600;
-  roundTimeout = setTimeout(() => {
-    if (roundActive && bombHolder === 1 && !isFake) {
-      doPass(1);
-    }
-  }, delay);
+function scheduleCpuPass(){
+  if(!roundActive) return;
+  const d=400+Math.random()*600;
+  roundTimeout=setTimeout(()=>{
+    if(roundActive && bombHolder===1 && !isFake) doPass(1);
+  },d);
 }
 
-function startFuse() {
+function startFuse(){
   stopFuse();
-  const tick = 50; // ms
-  fuseInterval = setInterval(() => {
-    if (paused) return;
-    fuseLeft -= tick / 1000;
-    if (fuseLeft <= 0) {
-      fuseLeft = 0;
-      updateFuseBar();
-      stopFuse();
-      onFuseEnd();
-    } else {
-      updateFuseBar();
-      updateFaceByFuse();
-    }
-  }, tick);
+  const tick=50;
+  fuseInterval=setInterval(()=>{
+    if(paused||isAnimating) return;
+    fuseLeft-=tick/1000;
+    if(fuseLeft<=0){
+      fuseLeft=0; updateFuseBar(); stopFuse(); onFuseEnd();
+    } else { updateFuseBar(); updateFaceByFuse(); spawnFuseSpark(); }
+  },tick);
+}
+function stopFuse(){
+  if(fuseInterval){ clearInterval(fuseInterval); fuseInterval=null; }
+  if(roundTimeout){ clearTimeout(roundTimeout); roundTimeout=null; }
 }
 
-function stopFuse() {
-  if (fuseInterval) { clearInterval(fuseInterval); fuseInterval = null; }
-  if (roundTimeout) { clearTimeout(roundTimeout); roundTimeout = null; }
-}
-
-function onFuseEnd() {
-  roundActive = false;
-  if (isFake) {
-    // Fake bomb — holding it successfully means round survived
+function onFuseEnd(){
+  roundActive=false;
+  if(isFake){
     nextRoundOrEnd('safe');
   } else {
-    // Real bomb exploded on whoever holds it
-    const victim = bombHolder;
+    const victim=bombHolder;
     loseLife(victim);
     boomsTotal++;
-    flashExplode(victim);
-    showRoundMsg('💥', 'BOOM!', `${victim === 0 ? (mode===1?'You':'Player 1') : (mode===1?'CPU':'Player 2')} got blasted!`, () => {
-      if (isEliminated()) { endGame('eliminated'); }
-      else { round++; startRound(); }
+    triggerExplosion(victim, ()=>{
+      showRoundMsg('💥','BOOM!',
+        `${victim===0?(mode===1?'You':'Player 1'):(mode===1?'CPU':'Player 2')} got blasted!`,
+        ()=>{ if(isEliminated()){ endGame('eliminated'); } else { round++; startRound(); } });
     });
   }
 }
-
-function nextRoundOrEnd(reason) {
-  if (reason === 'safe') {
-    // bomb defused naturally (fake held, or round survived)
-    showRoundMsg('✅', 'SAFE!', isFake ? 'Smart! You held the fake. +1 cool point.' : 'Round survived!', () => {
+function nextRoundOrEnd(reason){
+  if(reason==='safe'){
+    showRoundMsg('✅','SAFE!',isFake?'Smart! You held the fake. +1 cool point.':'Round survived!',()=>{
       round++; startRound();
     });
   }
 }
 
-// ══════════════════════════════════════════
+// ══════════════════════════════════
 //  PASS LOGIC
-// ══════════════════════════════════════════
-function doPass(fromPlayer) {
-  if (!roundActive) return;
-  if (bombHolder !== fromPlayer) return; // only holder can pass
-
-  if (isFake) {
-    // Passing a fake = lose a life
+// ══════════════════════════════════
+function doPass(fromPlayer){
+  if(!roundActive || isAnimating) return;
+  if(bombHolder!==fromPlayer) return;
+  if(isFake){
     loseLife(fromPlayer);
-    roundActive = false;
-    stopFuse();
-    showRoundMsg('🤦', 'OOPS!', `You passed the FAKE! That's a life.`, () => {
-      if (isEliminated()) { endGame('eliminated'); }
-      else { round++; startRound(); }
+    roundActive=false; stopFuse();
+    showRoundMsg('🤦','OOPS!',`You passed the FAKE! That's a life.`,()=>{
+      if(isEliminated()){ endGame('eliminated'); } else { round++; startRound(); }
     });
     return;
   }
+  const toPlayer=fromPlayer===0?1:0;
+  animatePass(fromPlayer, toPlayer, ()=>{
+    bombHolder=toPlayer;
+    updateZones();
+    isAnimating=false;
+    if(mode===1 && bombHolder===1) scheduleCpuPass();
+  });
+}
 
-  // Real bomb — pass it
-  bombHolder = fromPlayer === 0 ? 1 : 0;
-  flashZone(fromPlayer);
-  updateZones();
-  updateBombVisual();
+function handleZoneTap(player){ doPass(player-1); }
 
-  // 1P: if it went to CPU, schedule cpu pass
-  if (mode === 1 && bombHolder === 1) {
-    scheduleCpuPass();
+document.addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if(k==='a') handleZoneTap(1);
+  if(k==='l') handleZoneTap(2);
+});
+
+// ══════════════════════════════════
+//  FLYING BOMB ANIMATION
+// ══════════════════════════════════
+function animatePass(from, to, onDone){
+  isAnimating=true;
+  const wrap=document.getElementById('playersWrap');
+  const fb=document.getElementById('flyingBomb');
+  const staticBomb=document.getElementById('bombEmoji');
+  const fromZone=document.getElementById(from===0?'p1Zone':'p2Zone');
+  const toZone=document.getElementById(to===0?'p1Zone':'p2Zone');
+
+  // Hide static bomb
+  staticBomb.classList.add('hidden');
+
+  // Position flyingBomb at the center (bomb-arena) initially
+  const wrapRect=wrap.getBoundingClientRect();
+  const arenaEl=document.querySelector('.bomb-arena');
+  const arenaRect=arenaEl.getBoundingClientRect();
+
+  // Start position: center of arena relative to playersWrap
+  const startX=arenaRect.left - wrapRect.left + arenaRect.width/2 - 28;
+  const startY=arenaRect.top  - wrapRect.top  + arenaRect.height/2 - 28;
+
+  // End position: center of target zone relative to playersWrap
+  const toRect=toZone.getBoundingClientRect();
+  const endX=toRect.left - wrapRect.left + toRect.width/2 - 28;
+  const endY=toRect.top  - wrapRect.top  + toRect.height/2 - 28;
+
+  fb.textContent = isFake ? '💙' : '💣';
+  fb.className = isFake ? 'fake' : '';
+  // Re-add face overlay
+  const ff=document.createElement('span');
+  ff.style.cssText='position:absolute;font-size:20px;top:50%;left:50%;transform:translate(-50%,-60%);pointer-events:none';
+  ff.textContent=document.getElementById('bombFace').textContent;
+  fb.appendChild(ff);
+
+  fb.style.left=startX+'px';
+  fb.style.top=startY+'px';
+  fb.style.display='block';
+  fb.style.opacity='1';
+
+  // Burst on sending zone
+  burstZone(fromZone);
+
+  // Animate with requestAnimationFrame — arc + spin
+  const dur=220; // ms — fast and snappy
+  const startTime=performance.now();
+
+  // Arc control point (midpoint shifted perpendicular to travel)
+  const midX=(startX+endX)/2;
+  const midY=(startY+endY)/2;
+  // Arc height: push toward center of screen
+  const arcOffsetY = from===0 ? 30 : -30; // slight arc
+
+  function step(now){
+    const t=Math.min((now-startTime)/dur,1);
+    const ease=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2; // ease-in-out-quad
+
+    // Quadratic bezier
+    const bx=(1-ease)*(1-ease)*startX + 2*(1-ease)*ease*midX + ease*ease*endX;
+    const by=(1-ease)*(1-ease)*startY + 2*(1-ease)*ease*(midY+arcOffsetY) + ease*ease*endY;
+
+    // Spin: 360deg * number of spins
+    const spins=1.5;
+    const rot=ease*360*spins;
+
+    // Scale: slight squeeze at midpoint
+    const sc=1+Math.sin(ease*Math.PI)*0.25;
+
+    fb.style.left=bx+'px';
+    fb.style.top=by+'px';
+    fb.style.transform=`rotate(${rot}deg) scale(${sc})`;
+
+    if(t<1){
+      requestAnimationFrame(step);
+    } else {
+      // Land
+      fb.style.display='none';
+      fb.innerHTML='';
+      staticBomb.classList.remove('hidden');
+      burstZone(toZone);
+      spawnLandParticles(toZone);
+      onDone();
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+// ══════════════════════════════════
+//  EXPLOSION ANIMATION
+// ══════════════════════════════════
+function triggerExplosion(playerIdx, onDone){
+  const zone=document.getElementById(playerIdx===0?'p1Zone':'p2Zone');
+  // Flash
+  const flash=document.getElementById('explodeFlash');
+  flash.style.opacity='0.55';
+  setTimeout(()=>{ flash.style.transition='opacity .3s'; flash.style.opacity='0'; },80);
+  setTimeout(()=>{ flash.style.transition=''; },400);
+
+  // Screen shake
+  const gs=document.getElementById('gameScreen');
+  gs.classList.add('shake');
+  setTimeout(()=>gs.classList.remove('shake'),500);
+
+  // Zone explode
+  zone.classList.add('explode-zone');
+  setTimeout(()=>zone.classList.remove('explode-zone'),500);
+
+  // Particle burst
+  spawnExplosionParticles(zone);
+
+  setTimeout(onDone,600);
+}
+
+// ══════════════════════════════════
+//  PARTICLES
+// ══════════════════════════════════
+function spawnLandParticles(zone){
+  const rect=zone.getBoundingClientRect();
+  const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+  const colors=['#ff6b00','#ffd600','#ff2020','#fff'];
+  for(let i=0;i<10;i++){
+    const p=document.createElement('div');
+    p.className='spark';
+    const angle=Math.random()*Math.PI*2;
+    const dist=30+Math.random()*50;
+    const tx=Math.cos(angle)*dist, ty=Math.sin(angle)*dist;
+    const dur=0.4+Math.random()*0.3;
+    p.style.cssText=`left:${cx}px;top:${cy}px;background:${colors[i%colors.length]};
+      --tx:${tx}px;--ty:${ty}px;--dur:${dur}s;`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),dur*1000+50);
   }
 }
 
-function handleZoneTap(player) {
-  // player is 1 or 2, convert to 0/1
-  const idx = player - 1;
-  doPass(idx);
+function spawnExplosionParticles(zone){
+  const rect=zone.getBoundingClientRect();
+  const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+  const colors=['#ff3300','#ff6b00','#ffd600','#fff','#ff0000'];
+  for(let i=0;i<22;i++){
+    const p=document.createElement('div');
+    p.className='spark';
+    const angle=Math.random()*Math.PI*2;
+    const dist=50+Math.random()*100;
+    const tx=Math.cos(angle)*dist, ty=Math.sin(angle)*dist;
+    const dur=0.5+Math.random()*0.5;
+    const sz=6+Math.random()*8;
+    p.style.cssText=`left:${cx}px;top:${cy}px;width:${sz}px;height:${sz}px;
+      background:${colors[i%colors.length]};--tx:${tx}px;--ty:${ty}px;--dur:${dur}s;`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),dur*1000+50);
+  }
 }
 
-// Keyboard support
-document.addEventListener('keydown', (e) => {
-  const k = e.key.toLowerCase();
-  if (k === 'a') handleZoneTap(1);
-  if (k === 'l') handleZoneTap(2);
-});
-
-// ══════════════════════════════════════════
-//  LIVES & ELIMINATION
-// ══════════════════════════════════════════
-function loseLife(playerIdx) {
-  lives[playerIdx] = Math.max(0, lives[playerIdx] - 1);
-  updateLivesDisplay();
+let sparkTick=0;
+function spawnFuseSpark(){
+  sparkTick++;
+  if(sparkTick%4!==0) return; // not every tick
+  const ratio=fuseLeft/fuseMax;
+  if(ratio>0.5) return; // only when fuse is short
+  const holder=document.getElementById('bombHolder');
+  const rect=holder.getBoundingClientRect();
+  const cx=rect.left+rect.width/2, cy=rect.top+rect.height*0.2;
+  const p=document.createElement('div');
+  p.className='spark';
+  const tx=(Math.random()-0.5)*30, ty=-20-Math.random()*20;
+  const dur=0.3+Math.random()*0.2;
+  const col=ratio<0.25?'#ff2020':'#ffd600';
+  p.style.cssText=`left:${cx}px;top:${cy}px;width:5px;height:5px;background:${col};
+    --tx:${tx}px;--ty:${ty}px;--dur:${dur}s;`;
+  document.body.appendChild(p);
+  setTimeout(()=>p.remove(),dur*1000+50);
 }
 
-function isEliminated() {
-  if (mode === 1) return lives[0] <= 0;
-  return lives[0] <= 0 || lives[1] <= 0;
+function burstZone(zone){
+  zone.classList.remove('burst');
+  void zone.offsetWidth;
+  zone.classList.add('burst');
+  setTimeout(()=>zone.classList.remove('burst'),400);
 }
 
-function updateLivesDisplay() {
-  const hearts = (n) => '❤️'.repeat(n) + '🖤'.repeat(MAX_LIVES - n);
-  document.getElementById('p1Lives').textContent = hearts(lives[0]);
-  document.getElementById('p2Lives').textContent = hearts(lives[1]);
+// ══════════════════════════════════
+//  LIVES
+// ══════════════════════════════════
+function loseLife(idx){ lives[idx]=Math.max(0,lives[idx]-1); updateLivesDisplay(); }
+function isEliminated(){ return mode===1?lives[0]<=0:lives[0]<=0||lives[1]<=0; }
+function updateLivesDisplay(){
+  const h=n=>'❤️'.repeat(n)+'🖤'.repeat(MAX_LIVES-n);
+  document.getElementById('p1Lives').textContent=h(lives[0]);
+  document.getElementById('p2Lives').textContent=h(lives[1]);
 }
 
-// ══════════════════════════════════════════
+// ══════════════════════════════════
 //  VISUALS
-// ══════════════════════════════════════════
-function updateBombVisual() {
-  const bomb = document.getElementById('bombEmoji');
-  const holder = document.getElementById('bombHolder');
-  const fakeTag = document.getElementById('fakeTag');
-
-  if (isFake) {
-    bomb.textContent = '💙';
-    bomb.className = 'fake';
+// ══════════════════════════════════
+function updateBombVisual(){
+  const bomb=document.getElementById('bombEmoji');
+  const holder=document.getElementById('bombHolder');
+  if(isFake){
+    bomb.textContent='💙'; bomb.className='fake';
     holder.classList.add('show-fake');
-    fakeTag.textContent = '⚠️ FAKE';
   } else {
-    bomb.textContent = '💣';
-    bomb.className = '';
+    bomb.textContent='💣'; bomb.className='';
     holder.classList.remove('show-fake');
   }
 }
 
-function updateFaceByFuse() {
-  const ratio = fuseLeft / fuseMax;
-  let face, sweaty;
-  if (ratio > 0.6) { face = '😐'; sweaty = false; }
-  else if (ratio > 0.4) { face = '😅'; sweaty = false; }
-  else if (ratio > 0.25) { face = '😰'; sweaty = true; }
-  else { face = '😱'; sweaty = true; }
-
-  document.getElementById('bombFace').textContent = face;
-
-  const bar = document.getElementById('fuseBar');
-  if (ratio > 0.5) bar.style.background = 'var(--fuse-safe)';
-  else if (ratio > 0.25) bar.style.background = 'var(--fuse-mid)';
-  else bar.style.background = 'var(--fuse-danger)';
-
-  // Player faces mirror bomb stress
-  const pf = ratio > 0.5 ? '🙂' : ratio > 0.25 ? '😬' : '😱';
-  document.getElementById('p1Face').textContent = pf;
-  document.getElementById('p2Face').textContent = pf;
+function updateFaceByFuse(){
+  const ratio=fuseLeft/fuseMax;
+  const face=ratio>0.6?'😐':ratio>0.4?'😅':ratio>0.25?'😰':'😱';
+  document.getElementById('bombFace').textContent=face;
+  const bar=document.getElementById('fuseBar');
+  bar.style.background=ratio>0.5?'var(--fuse-safe)':ratio>0.25?'var(--fuse-mid)':'var(--fuse-danger)';
+  const pf=ratio>0.5?'🙂':ratio>0.25?'😬':'😱';
+  document.getElementById('p1Face').textContent=pf;
+  document.getElementById('p2Face').textContent=pf;
 }
 
-function updateFuseBar() {
-  const pct = Math.max(0, (fuseLeft / fuseMax) * 100);
-  document.getElementById('fuseBar').style.width = pct + '%';
-  document.getElementById('fuseTime').textContent = fuseLeft.toFixed(1) + 's';
+function updateFuseBar(){
+  const pct=Math.max(0,(fuseLeft/fuseMax)*100);
+  document.getElementById('fuseBar').style.width=pct+'%';
+  document.getElementById('fuseTime').textContent=fuseLeft.toFixed(1)+'s';
 }
 
-function updateZones() {
-  const z1 = document.getElementById('p1Zone');
-  const z2 = document.getElementById('p2Zone');
-  z1.classList.toggle('has-bomb', bombHolder === 0);
-  z2.classList.toggle('has-bomb', bombHolder === 1);
-  if (isFake) {
-    (bombHolder === 0 ? z1 : z2).classList.add('has-fake');
-    (bombHolder === 0 ? z2 : z1).classList.remove('has-fake');
-  } else {
-    z1.classList.remove('has-fake');
-    z2.classList.remove('has-fake');
-  }
+function updateZones(){
+  const z1=document.getElementById('p1Zone'), z2=document.getElementById('p2Zone');
+  z1.classList.toggle('has-bomb',bombHolder===0);
+  z2.classList.toggle('has-bomb',bombHolder===1);
+  z1.classList.remove('has-fake'); z2.classList.remove('has-fake');
+  if(isFake)(bombHolder===0?z1:z2).classList.add('has-fake');
 }
 
-function flashZone(playerIdx) {
-  const el = document.getElementById(playerIdx === 0 ? 'p1Zone' : 'p2Zone');
-  el.classList.add('flash-pass');
-  setTimeout(() => el.classList.remove('flash-pass'), 300);
-}
-
-function flashExplode(playerIdx) {
-  const el = document.getElementById(playerIdx === 0 ? 'p1Zone' : 'p2Zone');
-  el.classList.add('explode');
-  setTimeout(() => el.classList.remove('explode'), 600);
-}
-
-// ══════════════════════════════════════════
-//  ROUND MESSAGE
-// ══════════════════════════════════════════
-function showRoundMsg(emoji, title, sub, callback) {
-  const el = document.getElementById('roundMsg');
-  document.getElementById('msgEmoji').textContent = emoji;
-  document.getElementById('msgTitle').textContent = title;
-  document.getElementById('msgSub').textContent = sub;
+// ══════════════════════════════════
+//  ROUND MSG
+// ══════════════════════════════════
+function showRoundMsg(emoji,title,sub,callback){
+  const el=document.getElementById('roundMsg');
+  document.getElementById('msgEmoji').textContent=emoji;
+  document.getElementById('msgTitle').textContent=title;
+  document.getElementById('msgSub').textContent=sub;
   el.classList.add('show');
-
-  const dismiss = () => {
+  const dismiss=()=>{
     el.classList.remove('show');
-    el.removeEventListener('click', dismiss);
-    document.removeEventListener('keydown', kDismiss);
+    el.removeEventListener('click',dismiss);
+    document.removeEventListener('keydown',kd);
     callback();
   };
-  const kDismiss = (e) => { if (e.key === ' ' || e.key === 'Enter') dismiss(); };
-  setTimeout(() => {
-    el.addEventListener('click', dismiss);
-    document.addEventListener('keydown', kDismiss);
-  }, 600);
+  const kd=e=>{ if(e.key===' '||e.key==='Enter') dismiss(); };
+  setTimeout(()=>{ el.addEventListener('click',dismiss); document.addEventListener('keydown',kd); },600);
 }
 
-// ══════════════════════════════════════════
+// ══════════════════════════════════
 //  PAUSE
-// ══════════════════════════════════════════
-function pauseGame() {
-  paused = !paused;
-  document.querySelector('.header-btn').textContent = paused ? '▶' : '⏸';
+// ══════════════════════════════════
+function pauseGame(){
+  paused=!paused;
+  document.querySelector('.header-btn').textContent=paused?'▶':'⏸';
 }
 
-// ══════════════════════════════════════════
+// ══════════════════════════════════
 //  END GAME
-// ══════════════════════════════════════════
-function endGame(reason) {
-  stopFuse();
-  roundActive = false;
-
-  let emoji, title, winner, roast;
-
-  if (reason === 'survived') {
-    emoji = '🏆';
-    title = 'SURVIVED!';
-    winner = mode === 1 ? '🎉 You beat all 10 rounds!' : '🎉 Both players survived!';
-    roast = 'Genuinely impressive. The bomb blinked first.';
+// ══════════════════════════════════
+function endGame(reason){
+  stopFuse(); roundActive=false;
+  let emoji,title,winner,roast;
+  if(reason==='survived'){
+    emoji='🏆'; title='SURVIVED!';
+    winner=mode===1?'🎉 You beat all 10 rounds!':'🎉 Both players survived!';
+    roast='Genuinely impressive. The bomb blinked first.';
   } else {
-    // eliminated
-    emoji = '💀';
-    title = 'GAME OVER';
-    if (mode === 1) {
-      winner = '😬 Better luck next time.';
-      roast = ROASTS.solo[Math.floor(Math.random() * ROASTS.solo.length)];
+    emoji='💀'; title='GAME OVER';
+    if(mode===1){
+      winner='😬 Better luck next time.';
+      roast=ROASTS.solo[Math.floor(Math.random()*ROASTS.solo.length)];
     } else {
-      const loser = lives[0] <= 0 ? 'p1' : 'p2';
-      const loserName = loser === 'p1' ? 'Player 1' : 'Player 2';
-      winner = `🏆 ${loser === 'p1' ? 'Player 2' : 'Player 1'} Wins!`;
-      roast = ROASTS[loser][Math.floor(Math.random() * ROASTS[loser].length)];
+      const loser=lives[0]<=0?'p1':'p2';
+      winner=`🏆 ${loser==='p1'?'Player 2':'Player 1'} Wins!`;
+      roast=ROASTS[loser][Math.floor(Math.random()*ROASTS[loser].length)];
     }
   }
-
-  document.getElementById('endEmoji').textContent = emoji;
-  document.getElementById('endTitle').textContent = title;
-  document.getElementById('endWinner').textContent = winner;
-  document.getElementById('roastBox').textContent = roast;
-  document.getElementById('statRounds').textContent = round > MAX_ROUNDS ? MAX_ROUNDS : round;
-  document.getElementById('statFakes').textContent = fakesTotal;
-  document.getElementById('statBooms').textContent = boomsTotal;
-
+  document.getElementById('endEmoji').textContent=emoji;
+  document.getElementById('endTitle').textContent=title;
+  document.getElementById('endWinner').textContent=winner;
+  document.getElementById('roastBox').textContent=roast;
+  document.getElementById('statRounds').textContent=round>MAX_ROUNDS?MAX_ROUNDS:round;
+  document.getElementById('statFakes').textContent=fakesTotal;
+  document.getElementById('statBooms').textContent=boomsTotal;
   showScreen('endScreen');
 }
 </script>
