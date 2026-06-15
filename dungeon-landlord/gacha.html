@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Summon — Dungeon Landlord</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;--bg4:#22223a;
+  --fg:#f0f0f0;--fg2:#aaaaaa;--fg3:#555566;
+  --gold:#EF9F27;--gold2:#cc7a00;--gold-bg:rgba(239,159,39,0.08);
+  --crystal:#7B6EF6;--crystal-bg:rgba(123,110,246,0.08);
+  --red:#E24B4A;--green:#1D9E75;
+  --line:rgba(255,255,255,0.07);--line2:rgba(255,255,255,0.12);
+  --radius:12px;--radius-sm:8px;
+  --c-C:#888;--c-B:#4a9eff;--c-A:#a855f7;--c-S:#f59e0b;--c-SS:#ef4444;--c-SSS:#EF9F27;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow-x:hidden}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:20;background:rgba(10,10,15,0.92);backdrop-filter:blur(12px);border-bottom:0.5px solid var(--line);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem}
+.nav-title{font-size:14px;font-weight:500}
+.nav-right{display:flex;align-items:center;gap:8px}
+.currency-pill{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;font-size:13px;font-weight:500;border:0.5px solid}
+.crystal-pill{background:var(--crystal-bg);border-color:rgba(123,110,246,0.3);color:var(--crystal)}
+.gold-pill{background:var(--gold-bg);border-color:rgba(239,159,39,0.3);color:var(--gold)}
+
+main{padding:1.25rem 1.25rem 6rem;max-width:640px;margin:0 auto}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--fg3);text-decoration:none;margin-bottom:1rem;transition:color .15s}
+.back-link:hover{color:var(--fg)}
+
+/* BANNER */
+.banner{background:linear-gradient(135deg,#12121a,#1a0a2a);border:0.5px solid var(--line2);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.25rem;text-align:center;position:relative;overflow:hidden}
+.banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(123,110,246,0.15),transparent 70%)}
+.banner-title{font-size:22px;font-weight:500;letter-spacing:-.01em;margin-bottom:.3rem}
+.banner-sub{font-size:12px;color:var(--fg3)}
+.pity-row{display:flex;justify-content:center;gap:1.5rem;margin-top:1rem}
+.pity-item{text-align:center}
+.pity-val{font-size:16px;font-weight:500;color:var(--crystal)}
+.pity-lbl{font-size:10px;color:var(--fg3);margin-top:2px;letter-spacing:.04em;text-transform:uppercase}
+
+/* RATES */
+.rates-row{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap}
+.rate-pill{font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;border:0.5px solid}
+
+/* PULL BUTTONS */
+.pull-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
+.pull-btn{padding:1rem;border-radius:var(--radius);border:0.5px solid var(--line2);background:var(--bg2);cursor:pointer;transition:all .15s;text-align:center}
+.pull-btn:hover{background:var(--bg3);border-color:var(--crystal)}
+.pull-btn:active{transform:scale(.97)}
+.pull-btn-title{font-size:15px;font-weight:500;color:var(--fg);margin-bottom:3px}
+.pull-btn-cost{font-size:13px;color:var(--crystal);font-weight:500}
+.pull-btn-note{font-size:10px;color:var(--fg3);margin-top:3px}
+.pull-btn.featured{border-color:rgba(239,159,39,0.4);background:rgba(239,159,39,0.05)}
+.pull-btn.featured:hover{border-color:var(--gold)}
+.pull-btn.featured .pull-btn-cost{color:var(--gold)}
+
+/* RESULT OVERLAY */
+.result-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;padding:1.25rem}
+.result-overlay.show{opacity:1;pointer-events:all}
+
+/* SINGLE PULL REVEAL */
+.single-reveal{display:flex;flex-direction:column;align-items:center;gap:1rem;width:100%}
+.reveal-card{width:200px;height:280px;border-radius:var(--radius);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;transform:rotateY(90deg);transition:transform .5s ease}
+.reveal-card.flipped{transform:rotateY(0deg)}
+.reveal-card-art{width:100%;height:65%;display:flex;align-items:center;justify-content:center;font-size:64px}
+.reveal-card-body{width:100%;padding:.75rem;text-align:center}
+.reveal-card-name{font-size:16px;font-weight:500;color:var(--fg)}
+.reveal-card-tier{font-size:12px;font-weight:600;letter-spacing:.08em;margin-top:3px}
+.reveal-shine{position:absolute;inset:0;background:linear-gradient(135deg,transparent 30%,rgba(255,255,255,0.15) 50%,transparent 70%);transform:translateX(-100%);transition:transform .6s ease}
+.reveal-card.flipped .reveal-shine{transform:translateX(100%)}
+.reveal-new-badge{position:absolute;top:10px;right:10px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;background:#1D9E75;color:#fff;letter-spacing:.04em}
+
+/* 10-PULL GRID */
+.ten-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%;max-width:500px}
+.mini-card{border-radius:var(--radius-sm);padding:.6rem .4rem;text-align:center;position:relative;transform:scale(0);transition:transform .3s ease;border:0.5px solid rgba(255,255,255,0.1)}
+.mini-card.pop{transform:scale(1)}
+.mini-card-icon{font-size:28px;margin-bottom:4px}
+.mini-card-name{font-size:9px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-card-tier{font-size:10px;font-weight:600;letter-spacing:.04em}
+.mini-new{position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--green)}
+
+.result-btns{display:flex;gap:10px;margin-top:1.5rem;flex-wrap:wrap;justify-content:center}
+.rbtn{padding:10px 24px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:0.5px solid}
+.rbtn-primary{background:var(--crystal);color:#fff;border-color:var(--crystal)}
+.rbtn-primary:hover{opacity:.88}
+.rbtn-ghost{background:transparent;color:var(--fg2);border-color:var(--line2)}
+.rbtn-ghost:hover{background:var(--bg2)}
+
+/* HISTORY */
+.sec-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);margin-bottom:.75rem}
+.history-list{display:flex;flex-direction:column;gap:6px}
+.history-item{background:var(--bg2);border:0.5px solid var(--line);border-radius:var(--radius-sm);padding:.65rem 1rem;display:flex;align-items:center;gap:.75rem}
+.history-icon{font-size:20px;width:32px;text-align:center}
+.history-name{font-size:13px;color:var(--fg);flex:1}
+.history-tier{font-size:11px;font-weight:600;letter-spacing:.06em}
+.history-time{font-size:11px;color:var(--fg3)}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:20;background:rgba(10,10,15,0.95);backdrop-filter:blur(12px);border-top:0.5px solid var(--line);display:flex;padding:.5rem 0 calc(.5rem + env(safe-area-inset-bottom))}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:.5rem;cursor:pointer;border:none;background:transparent;color:var(--fg3);font-size:10px;letter-spacing:.03em;transition:color .15s;text-decoration:none}
+.bnav-btn.active{color:var(--gold)}
+.bnav-icon{font-size:20px;line-height:1}
+
+/* BURST ANIMATION */
+@keyframes burst{0%{transform:scale(0) rotate(0deg);opacity:1}100%{transform:scale(2) rotate(180deg);opacity:0}}
+.burst-particle{position:absolute;width:6px;height:6px;border-radius:50%;pointer-events:none}
+</style>
+</head>
+<body>
+
+<!-- RESULT OVERLAY -->
+<div class="result-overlay" id="result-overlay">
+  <div id="result-content" style="width:100%;display:flex;flex-direction:column;align-items:center"></div>
+  <div class="result-btns">
+    <button class="rbtn rbtn-primary" id="pull-again-btn">Pull Again</button>
+    <button class="rbtn rbtn-ghost" onclick="closeResult()">Close</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div style="display:flex;align-items:center;gap:10px">
+    <a href="index.html" style="color:var(--fg3);text-decoration:none;font-size:18px">←</a>
+    <span class="nav-title">Summon</span>
+  </div>
+  <div class="nav-right">
+    <div class="currency-pill crystal-pill">💎 <span id="nav-crystals">0</span></div>
+  </div>
+</nav>
+
+<main>
+  <div class="banner">
+    <div class="banner-title">Monster Summon</div>
+    <div class="banner-sub">25 unique monsters across 6 rarity tiers</div>
+    <div class="pity-row">
+      <div class="pity-item"><div class="pity-val" id="pity-10">0/10</div><div class="pity-lbl">To A+ pity</div></div>
+      <div class="pity-item"><div class="pity-val" id="pity-50">0/50</div><div class="pity-lbl">To S+ pity</div></div>
+      <div class="pity-item"><div class="pity-val" id="pity-100">0/100</div><div class="pity-lbl">To SS+ pity</div></div>
+    </div>
+  </div>
+
+  <!-- RATES -->
+  <div class="rates-row">
+    <div class="rate-pill" style="background:rgba(136,136,136,0.1);border-color:rgba(136,136,136,0.3);color:#aaa">C 20%</div>
+    <div class="rate-pill" style="background:rgba(74,158,255,0.1);border-color:rgba(74,158,255,0.3);color:#4a9eff">B 40%</div>
+    <div class="rate-pill" style="background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.3);color:#a855f7">A 25%</div>
+    <div class="rate-pill" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:#f59e0b">S 10%</div>
+    <div class="rate-pill" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:#ef4444">SS 4%</div>
+    <div class="rate-pill" style="background:rgba(239,159,39,0.1);border-color:rgba(239,159,39,0.4);color:#EF9F27">SSS 1%</div>
+  </div>
+
+  <!-- PULL BUTTONS -->
+  <div class="pull-wrap">
+    <div class="pull-btn" onclick="doPull(1)">
+      <div class="pull-btn-title">1× Summon</div>
+      <div class="pull-btn-cost">💎 100</div>
+      <div class="pull-btn-note">Single pull</div>
+    </div>
+    <div class="pull-btn featured" onclick="doPull(10)">
+      <div class="pull-btn-title">10× Summon</div>
+      <div class="pull-btn-cost">💎 900</div>
+      <div class="pull-btn-note">1 pull free · A+ guaranteed</div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="sec-label">Recent pulls</div>
+  <div class="history-list" id="history-list">
+    <div style="font-size:13px;color:var(--fg3);text-align:center;padding:1rem">No pulls yet — start summoning!</div>
+  </div>
+</main>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <a href="index.html" class="bnav-btn"><span class="bnav-icon">🏰</span>Home</a>
+  <a href="gacha.html" class="bnav-btn active"><span class="bnav-icon">💎</span>Summon</a>
+  <a href="collection.html" class="bnav-btn"><span class="bnav-icon">📖</span>Collection</a>
+  <a href="battle.html" class="bnav-btn"><span class="bnav-icon">⚔️</span>Battle</a>
+</div>
+
+<script>
+// ── SAVE SYSTEM ──
+function load(k,d){try{const v=localStorage.getItem('dl_'+k);return v!==null?JSON.parse(v):d;}catch(e){return d;}}
+function save(k,v){try{localStorage.setItem('dl_'+k,JSON.stringify(v));}catch(e){}}
+
+// ── STATE ──
+let crystals = load('crystals', 300);
+let collection = load('collection', [{id:'ratling',tier:'C',stars:1},{id:'furnace',tier:'C',stars:1},{id:'kross',tier:'C',stars:1}]);
+let pullCount = load('pullCount', 0);
+let pullHistory = load('pullHistory', []);
+
+// ── MONSTER DATA ──
+const MONSTERS = {
+  // C tier
+  ratling:      {name:'Ratling',      tier:'C', icon:'🐀', color:'#888'},
+  vex_shade:    {name:"Vex's Shade",  tier:'C', icon:'👤', color:'#888'},
+  kross:        {name:'Kross',        tier:'C', icon:'🦂', color:'#888'},
+  yendra:       {name:'Yendra',       tier:'C', icon:'🧪', color:'#888'},
+  thorn_brood:  {name:'Broodmother',  tier:'C', icon:'🕷️', color:'#888'},
+  // B tier
+  lurker:       {name:'Lurker',       tier:'B', icon:'👁️', color:'#4a9eff'},
+  ashborn:      {name:'Ashborn',      tier:'B', icon:'🔥', color:'#4a9eff'},
+  spectre:      {name:'Spectre',      tier:'B', icon:'👻', color:'#4a9eff'},
+  furnace:      {name:'Furnace',      tier:'B', icon:'🌋', color:'#4a9eff'},
+  rotblood:     {name:'Rotblood',     tier:'B', icon:'💀', color:'#4a9eff'},
+  // A tier
+  gornak:       {name:'Gornak',       tier:'A', icon:'💪', color:'#a855f7'},
+  syndra:       {name:'Syndra',       tier:'A', icon:'⚡', color:'#a855f7'},
+  muse:         {name:'Muse',         tier:'A', icon:'🎭', color:'#a855f7'},
+  glitch:       {name:'Glitch',       tier:'A', icon:'💾', color:'#a855f7'},
+  malachar:     {name:'Malachar',     tier:'A', icon:'😱', color:'#a855f7'},
+  // S tier
+  mirage:       {name:'Mirage',       tier:'S', icon:'🌀', color:'#f59e0b'},
+  sorrow:       {name:'Sorrow',       tier:'S', icon:'☠️', color:'#f59e0b'},
+  vortex:       {name:'Vortex',       tier:'S', icon:'🌪️', color:'#f59e0b'},
+  raxor:        {name:'Raxor',        tier:'S', icon:'🐉', color:'#f59e0b'},
+  // SS tier
+  vex:          {name:'Vex',          tier:'SS', icon:'⚔️', color:'#ef4444'},
+  castellus:    {name:'Castellus',    tier:'SS', icon:'🪙', color:'#ef4444'},
+  mara:         {name:'Mara',         tier:'SS', icon:'🌑', color:'#ef4444'},
+  // SSS tier
+  crimson:      {name:'Crimson Knight',tier:'SSS',icon:'🩸',color:'#EF9F27'},
+  aelara:       {name:'Aelara',       tier:'SSS',icon:'👸', color:'#EF9F27'},
+  kesh:         {name:'Kesh',         tier:'SSS',icon:'⚡', color:'#EF9F27'},
+};
+
+const TIER_RATES = {C:20,B:40,A:25,S:10,SS:4,SSS:1};
+const TIER_POOLS = {
+  C: ['ratling','vex_shade','kross','yendra','thorn_brood'],
+  B: ['lurker','ashborn','spectre','furnace','rotblood'],
+  A: ['gornak','syndra','muse','glitch','malachar'],
+  S: ['mirage','sorrow','vortex','raxor'],
+  SS:['vex','castellus','mara'],
+  SSS:['crimson','aelara','kesh'],
+};
+
+function rollTier(forcedMinTier) {
+  let rand = Math.random() * 100;
+  const tiers = ['SSS','SS','S','A','B','C'];
+  if (forcedMinTier) {
+    const minIdx = tiers.indexOf(forcedMinTier);
+    // Only allow tiers at or above forcedMinTier
+    let total = 0;
+    for (let i = 0; i <= minIdx; i++) total += TIER_RATES[tiers[i]];
+    rand = Math.random() * total;
+    let cum = 0;
+    for (let i = 0; i <= minIdx; i++) {
+      cum += TIER_RATES[tiers[i]];
+      if (rand < cum) return tiers[i];
+    }
+    return forcedMinTier;
+  }
+  let cum = 0;
+  for (const t of tiers) {
+    cum += TIER_RATES[t];
+    if (rand < cum) return t;
+  }
+  return 'C';
+}
+
+function rollMonster(tier) {
+  const pool = TIER_POOLS[tier];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function pullOne(forcedMinTier) {
+  pullCount++;
+  const tier = rollTier(forcedMinTier);
+  const id = rollMonster(tier);
+  const isNew = !collection.find(c => c.id === id);
+  if (isNew) {
+    collection.push({id, tier, stars: 1});
+  } else {
+    const existing = collection.find(c => c.id === id);
+    if (existing && existing.stars < 5) existing.stars++;
+  }
+  save('collection', collection);
+  save('pullCount', pullCount);
+  return {id, tier, isNew};
+}
+
+function doPull(count) {
+  const cost = count === 1 ? 100 : 900;
+  if (crystals < cost) {
+    alert('Not enough crystals! You need ' + cost + ' 💎');
+    return;
+  }
+  crystals -= cost;
+  save('crystals', crystals);
+  updateUI();
+
+  const results = [];
+  if (count === 1) {
+    // Pity at 10 = A+, 50 = S+, 100 = SS+
+    let forced = null;
+    if (pullCount % 100 === 99) forced = 'SS';
+    else if (pullCount % 50 === 49) forced = 'S';
+    else if (pullCount % 10 === 9) forced = 'A';
+    results.push(pullOne(forced));
+    showSingleResult(results[0]);
+  } else {
+    // 10-pull: last pull guaranteed A+
+    for (let i = 0; i < 9; i++) results.push(pullOne(null));
+    results.push(pullOne('A')); // guaranteed A+
+    showTenResult(results);
+  }
+
+  // Save to history
+  results.forEach(r => {
+    pullHistory.unshift({...r, time: Date.now()});
+  });
+  if (pullHistory.length > 50) pullHistory = pullHistory.slice(0, 50);
+  save('pullHistory', pullHistory);
+  renderHistory();
+  updatePity();
+}
+
+function tierColor(t){
+  return {C:'#888',B:'#4a9eff',A:'#a855f7',S:'#f59e0b',SS:'#ef4444',SSS:'#EF9F27'}[t]||'#888';
+}
+function tierBg(t){
+  return {C:'rgba(136,136,136,0.1)',B:'rgba(74,158,255,0.1)',A:'rgba(168,85,247,0.15)',S:'rgba(245,158,11,0.15)',SS:'rgba(239,68,68,0.15)',SSS:'rgba(239,159,39,0.2)'}[t]||'rgba(0,0,0,0.2)';
+}
+
+function showSingleResult(r) {
+  const m = MONSTERS[r.id];
+  const content = document.getElementById('result-content');
+  content.innerHTML = `
+    <div style="font-size:13px;color:var(--fg3);margin-bottom:1rem;letter-spacing:.06em;text-transform:uppercase">You summoned</div>
+    <div class="single-reveal" id="single-reveal">
+      <div class="reveal-card" id="reveal-card" style="background:${tierBg(r.tier)};border:1px solid ${tierColor(r.tier)}40">
+        <div class="reveal-shine"></div>
+        ${r.isNew ? '<div class="reveal-new-badge">NEW</div>' : ''}
+        <div class="reveal-card-art">${m.icon}</div>
+        <div class="reveal-card-body">
+          <div class="reveal-card-name">${m.name}</div>
+          <div class="reveal-card-tier" style="color:${tierColor(r.tier)}">${r.tier} Tier</div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('pull-again-btn').onclick = () => { closeResult(); doPull(1); };
+  document.getElementById('result-overlay').classList.add('show');
+  setTimeout(() => document.getElementById('reveal-card').classList.add('flipped'), 200);
+  if (['S','SS','SSS'].includes(r.tier)) spawnBurst(tierColor(r.tier));
+}
+
+function showTenResult(results) {
+  const content = document.getElementById('result-content');
+  content.innerHTML = `
+    <div style="font-size:13px;color:var(--fg3);margin-bottom:1rem;letter-spacing:.06em;text-transform:uppercase">10× Summon results</div>
+    <div class="ten-grid" id="ten-grid">
+      ${results.map((r,i) => {
+        const m = MONSTERS[r.id];
+        return `<div class="mini-card" id="mc-${i}" style="background:${tierBg(r.tier)};border-color:${tierColor(r.tier)}40">
+          ${r.isNew ? '<div class="mini-new"></div>' : ''}
+          <div class="mini-card-icon">${m.icon}</div>
+          <div class="mini-card-name">${m.name}</div>
+          <div class="mini-card-tier" style="color:${tierColor(r.tier)}">${r.tier}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+  document.getElementById('pull-again-btn').onclick = () => { closeResult(); doPull(10); };
+  document.getElementById('result-overlay').classList.add('show');
+  results.forEach((_,i) => {
+    setTimeout(() => {
+      const el = document.getElementById('mc-'+i);
+      if (el) el.classList.add('pop');
+    }, i * 120);
+  });
+  const best = results.reduce((a,b) => ['SSS','SS','S','A','B','C'].indexOf(a.tier) < ['SSS','SS','S','A','B','C'].indexOf(b.tier) ? a : b);
+  if (['S','SS','SSS'].includes(best.tier)) setTimeout(() => spawnBurst(tierColor(best.tier)), 500);
+}
+
+function spawnBurst(color) {
+  const overlay = document.getElementById('result-overlay');
+  for (let i = 0; i < 16; i++) {
+    const p = document.createElement('div');
+    p.className = 'burst-particle';
+    p.style.cssText = `background:${color};left:50%;top:40%;animation:burst ${0.5+Math.random()*0.5}s ease-out ${Math.random()*0.3}s forwards;transform-origin:${(Math.random()-0.5)*200}px ${(Math.random()-0.5)*200}px`;
+    overlay.appendChild(p);
+    setTimeout(() => p.remove(), 1200);
+  }
+}
+
+function closeResult() {
+  document.getElementById('result-overlay').classList.remove('show');
+}
+
+function updatePity() {
+  const p = pullCount % 10;
+  const p50 = pullCount % 50;
+  const p100 = pullCount % 100;
+  document.getElementById('pity-10').textContent = p + '/10';
+  document.getElementById('pity-50').textContent = p50 + '/50';
+  document.getElementById('pity-100').textContent = p100 + '/100';
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  if (!pullHistory.length) {
+    list.innerHTML = '<div style="font-size:13px;color:var(--fg3);text-align:center;padding:1rem">No pulls yet — start summoning!</div>';
+    return;
+  }
+  list.innerHTML = pullHistory.slice(0,15).map(r => {
+    const m = MONSTERS[r.id];
+    const ago = Math.round((Date.now() - r.time) / 60000);
+    const agoStr = ago < 1 ? 'just now' : ago < 60 ? ago+'m ago' : Math.round(ago/60)+'h ago';
+    return `<div class="history-item">
+      <div class="history-icon">${m.icon}</div>
+      <div class="history-name">${m.name} ${r.isNew ? '<span style="font-size:10px;color:var(--green);font-weight:500">NEW</span>' : ''}</div>
+      <div class="history-tier" style="color:${tierColor(r.tier)}">${r.tier}</div>
+      <div class="history-time">${agoStr}</div>
+    </div>`;
+  }).join('');
+}
+
+function updateUI() {
+  document.getElementById('nav-crystals').textContent = crystals;
+}
+
+// ── INIT ──
+updateUI();
+updatePity();
+renderHistory();
+</script>
+</body>
+</html>
