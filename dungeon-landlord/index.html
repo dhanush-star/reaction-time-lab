@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Dungeon Landlord</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;--bg4:#22223a;
+  --fg:#f0f0f0;--fg2:#aaaaaa;--fg3:#555566;
+  --gold:#EF9F27;--gold2:#cc7a00;--gold-bg:rgba(239,159,39,0.08);
+  --crystal:#7B6EF6;--crystal2:#5548d4;--crystal-bg:rgba(123,110,246,0.08);
+  --red:#E24B4A;--green:#1D9E75;
+  --line:rgba(255,255,255,0.07);--line2:rgba(255,255,255,0.12);
+  --radius:12px;--radius-sm:8px;--radius-xs:5px;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow-x:hidden}
+
+/* BG PARTICLES */
+.bg-layer{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.particle{position:absolute;border-radius:50%;opacity:.18;animation:float linear infinite}
+@keyframes float{0%{transform:translateY(100vh) scale(0)}100%{transform:translateY(-20px) scale(1)}}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:20;background:rgba(10,10,15,0.92);backdrop-filter:blur(12px);border-bottom:0.5px solid var(--line);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem}
+.nav-left{display:flex;align-items:center;gap:10px}
+.nav-logo{width:28px;height:28px}
+.nav-title{font-size:14px;font-weight:500;letter-spacing:.01em}
+.nav-right{display:flex;align-items:center;gap:8px}
+.currency-pill{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;font-size:13px;font-weight:500;border:0.5px solid}
+.crystal-pill{background:var(--crystal-bg);border-color:rgba(123,110,246,0.3);color:var(--crystal)}
+.gold-pill{background:var(--gold-bg);border-color:rgba(239,159,39,0.3);color:var(--gold)}
+
+/* MAIN */
+main{position:relative;z-index:1;padding:1.5rem 1.25rem 6rem;max-width:640px;margin:0 auto}
+
+/* HERO BANNER */
+.hero-banner{background:linear-gradient(135deg,#12121a 0%,#1a0a2a 50%,#0a1a12 100%);border:0.5px solid var(--line2);border-radius:var(--radius);padding:2rem 1.5rem;margin-bottom:1.25rem;position:relative;overflow:hidden}
+.hero-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(239,159,39,0.08) 0%,transparent 70%)}
+.hero-eyebrow{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);margin-bottom:.6rem}
+.hero-title{font-size:clamp(26px,6vw,40px);font-weight:500;letter-spacing:-.02em;line-height:1.1;margin-bottom:.6rem}
+.hero-title span{color:var(--gold)}
+.hero-sub{font-size:13px;color:var(--fg2);line-height:1.6;max-width:320px}
+.hero-art{position:absolute;right:1rem;top:50%;transform:translateY(-50%);opacity:.6}
+
+/* DAILY LOGIN */
+.daily-card{background:var(--bg2);border:0.5px solid var(--line2);border-radius:var(--radius);padding:1.1rem 1.25rem;margin-bottom:1.25rem}
+.daily-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem}
+.daily-title{font-size:13px;font-weight:500;color:var(--fg)}
+.streak-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:rgba(239,159,39,0.12);color:var(--gold);border:0.5px solid rgba(239,159,39,0.25)}
+.daily-days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.day-slot{aspect-ratio:1;border-radius:var(--radius-xs);display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.5px solid var(--line);background:var(--bg3);font-size:9px;color:var(--fg3);gap:2px;cursor:default;transition:all .2s}
+.day-slot.claimed{background:rgba(29,158,117,0.15);border-color:rgba(29,158,117,0.3)}
+.day-slot.claimed .day-icon{color:var(--green)}
+.day-slot.today{background:rgba(239,159,39,0.12);border-color:var(--gold);cursor:pointer}
+.day-slot.today .day-icon{color:var(--gold)}
+.day-slot.today:hover{background:rgba(239,159,39,0.2)}
+.day-slot.future{opacity:.4}
+.day-num{font-size:8px;color:var(--fg3)}
+.day-icon{font-size:14px;line-height:1}
+.day-reward{font-size:8px;font-weight:500}
+.claim-btn{width:100%;margin-top:.9rem;padding:10px;border-radius:var(--radius-sm);border:none;background:var(--gold);color:#1a0a00;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s;letter-spacing:.02em}
+.claim-btn:hover{opacity:.88}
+.claim-btn:disabled{opacity:.4;cursor:default}
+.already-claimed{width:100%;margin-top:.9rem;padding:10px;border-radius:var(--radius-sm);border:0.5px solid var(--line);background:transparent;color:var(--fg3);font-size:12px;text-align:center}
+
+/* SECTION LABEL */
+.sec-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);margin-bottom:.75rem;margin-top:1.5rem}
+
+/* NAV CARDS */
+.nav-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.nav-card{background:var(--bg2);border:0.5px solid var(--line);border-radius:var(--radius);padding:1.1rem 1.1rem;cursor:pointer;transition:all .15s;text-decoration:none;display:block;position:relative;overflow:hidden}
+.nav-card:hover{border-color:var(--line2);background:var(--bg3)}
+.nav-card:active{transform:scale(.98)}
+.nav-card-icon{font-size:24px;margin-bottom:.6rem;display:block}
+.nav-card-title{font-size:14px;font-weight:500;color:var(--fg);margin-bottom:3px}
+.nav-card-sub{font-size:11px;color:var(--fg3);line-height:1.5}
+.nav-card-arrow{position:absolute;bottom:1rem;right:1rem;font-size:11px;color:var(--fg3)}
+.nav-card.highlight{border-color:rgba(239,159,39,0.3)}
+.nav-card.highlight:hover{border-color:var(--gold)}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
+.stat-box{background:var(--bg2);border:0.5px solid var(--line);border-radius:var(--radius-sm);padding:.75rem .9rem}
+.stat-box-val{font-size:20px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--fg)}
+.stat-box-lbl{font-size:10px;color:var(--fg3);letter-spacing:.05em;text-transform:uppercase;margin-top:3px}
+
+/* REWARD POPUP */
+.popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.popup-overlay.show{opacity:1;pointer-events:all}
+.popup-box{background:var(--bg2);border:0.5px solid var(--line2);border-radius:var(--radius);padding:2rem 1.5rem;text-align:center;max-width:280px;width:90%;transform:scale(.9);transition:transform .25s}
+.popup-overlay.show .popup-box{transform:scale(1)}
+.popup-icon{font-size:48px;margin-bottom:.75rem}
+.popup-title{font-size:18px;font-weight:500;margin-bottom:.4rem}
+.popup-sub{font-size:13px;color:var(--fg2);margin-bottom:1.25rem;line-height:1.6}
+.popup-reward{font-size:28px;font-weight:500;color:var(--gold);margin-bottom:.25rem}
+.popup-btn{width:100%;padding:11px;border-radius:var(--radius-sm);border:none;background:var(--gold);color:#1a0a00;font-size:14px;font-weight:600;cursor:pointer}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:20;background:rgba(10,10,15,0.95);backdrop-filter:blur(12px);border-top:0.5px solid var(--line);display:flex;padding:.5rem 0 calc(.5rem + env(safe-area-inset-bottom))}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:.5rem;cursor:pointer;border:none;background:transparent;color:var(--fg3);font-size:10px;letter-spacing:.03em;transition:color .15s;text-decoration:none}
+.bnav-btn.active{color:var(--gold)}
+.bnav-icon{font-size:20px;line-height:1}
+
+/* BACK LINK */
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--fg3);text-decoration:none;margin-bottom:1rem;transition:color .15s}
+.back-link:hover{color:var(--fg)}
+</style>
+</head>
+<body>
+
+<!-- BG -->
+<div class="bg-layer" id="bg-layer"></div>
+
+<!-- REWARD POPUP -->
+<div class="popup-overlay" id="popup">
+  <div class="popup-box">
+    <div class="popup-icon">🎁</div>
+    <div class="popup-title">Daily Login!</div>
+    <div class="popup-sub" id="popup-sub">Day <strong id="popup-day">1</strong> reward</div>
+    <div class="popup-reward" id="popup-reward">+30 💎</div>
+    <button class="popup-btn" onclick="closePopup()">Collect</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <svg class="nav-logo" viewBox="0 0 28 28" fill="none">
+      <rect x="3" y="8" width="22" height="16" rx="3" fill="#2a1500"/>
+      <rect x="3" y="8" width="22" height="16" rx="3" stroke="#EF9F27" stroke-width=".8" opacity=".6"/>
+      <rect x="7" y="4" width="14" height="6" rx="2" fill="#1a0a00" stroke="#EF9F27" stroke-width=".8" opacity=".5"/>
+      <circle cx="14" cy="16" r="3" fill="#EF9F27" opacity=".8"/>
+      <line x1="8" y1="16" x2="11" y2="16" stroke="#EF9F27" stroke-width=".8" opacity=".5"/>
+      <line x1="17" y1="16" x2="20" y2="16" stroke="#EF9F27" stroke-width=".8" opacity=".5"/>
+    </svg>
+    <span class="nav-title">Dungeon Landlord</span>
+  </div>
+  <div class="nav-right">
+    <div class="currency-pill crystal-pill">💎 <span id="nav-crystals">0</span></div>
+    <div class="currency-pill gold-pill">🪙 <span id="nav-gold">0</span></div>
+  </div>
+</nav>
+
+<main>
+  <a href="../reaction-time-lab.html" class="back-link">← Back to lab</a>
+
+  <!-- HERO BANNER -->
+  <div class="hero-banner">
+    <div class="hero-eyebrow">Tower Defense · Gacha · Strategy</div>
+    <h1 class="hero-title">You are the<br><span>Dungeon Lord</span></h1>
+    <p class="hero-sub">Collect monsters. Defend your throne. Stop the heroes from taking what's yours.</p>
+    <div class="hero-art">
+      <svg width="80" height="100" viewBox="0 0 80 100">
+        <ellipse cx="40" cy="92" rx="28" ry="7" fill="#2a1500" opacity=".5"/>
+        <ellipse cx="40" cy="68" rx="26" ry="22" fill="#2a1500"/>
+        <ellipse cx="40" cy="68" rx="22" ry="18" fill="#3d1f00"/>
+        <circle cx="40" cy="40" r="22" fill="#2a1500"/>
+        <ellipse cx="40" cy="40" rx="18" ry="20" fill="#3d1f00"/>
+        <path d="M22 25 L18 8 L27 22Z" fill="#5a2f00"/>
+        <path d="M58 25 L62 8 L53 22Z" fill="#5a2f00"/>
+        <circle cx="32" cy="36" r="5" fill="#cc4400"/>
+        <circle cx="48" cy="36" r="5" fill="#cc4400"/>
+        <circle cx="32" cy="36" r="2.5" fill="#ff6600"/>
+        <circle cx="48" cy="36" r="2.5" fill="#ff6600"/>
+        <path d="M30 50 Q40 45 50 50" fill="none" stroke="#cc4400" stroke-width="2" stroke-linecap="round"/>
+        <path d="M14 55 Q6 48 10 38 Q14 28 20 36" fill="none" stroke="#3d1f00" stroke-width="4" stroke-linecap="round"/>
+        <path d="M66 55 Q74 48 70 38 Q66 28 60 36" fill="none" stroke="#3d1f00" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-box-val" id="stat-level">1</div>
+      <div class="stat-box-lbl">Campaign</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-val" id="stat-monsters">3</div>
+      <div class="stat-box-lbl">Monsters</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-val" id="stat-streak">0</div>
+      <div class="stat-box-lbl">Login streak</div>
+    </div>
+  </div>
+
+  <!-- DAILY LOGIN -->
+  <div class="daily-card" id="daily-card">
+    <div class="daily-header">
+      <div class="daily-title">Daily Login</div>
+      <div class="streak-badge" id="streak-badge">🔥 Day 1</div>
+    </div>
+    <div class="daily-days" id="daily-days"></div>
+    <div id="claim-wrap"></div>
+  </div>
+
+  <!-- NAVIGATE -->
+  <div class="sec-label">Play</div>
+  <div class="nav-grid">
+    <a href="battle.html" class="nav-card highlight">
+      <span class="nav-card-icon">⚔️</span>
+      <div class="nav-card-title">Campaign</div>
+      <div class="nav-card-sub">Fight through 20 levels. Stop the heroes.</div>
+      <span class="nav-card-arrow">→</span>
+    </a>
+    <a href="gacha.html" class="nav-card">
+      <span class="nav-card-icon">💎</span>
+      <div class="nav-card-title">Summon</div>
+      <div class="nav-card-sub">Pull new monsters from the gacha.</div>
+      <span class="nav-card-arrow">→</span>
+    </a>
+    <a href="collection.html" class="nav-card">
+      <span class="nav-card-icon">📖</span>
+      <div class="nav-card-title">Collection</div>
+      <div class="nav-card-sub">View your monster roster and stats.</div>
+      <span class="nav-card-arrow">→</span>
+    </a>
+    <a href="battle.html?mode=endless" class="nav-card">
+      <span class="nav-card-icon">♾️</span>
+      <div class="nav-card-title">Endless</div>
+      <div class="nav-card-sub">Survive as long as possible. No mercy.</div>
+      <span class="nav-card-arrow">→</span>
+    </a>
+  </div>
+
+  <!-- MISSIONS -->
+  <div class="sec-label">Daily missions</div>
+  <div id="missions-list" style="display:flex;flex-direction:column;gap:8px"></div>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <a href="index.html" class="bnav-btn active">
+    <span class="bnav-icon">🏰</span>Home
+  </a>
+  <a href="gacha.html" class="bnav-btn">
+    <span class="bnav-icon">💎</span>Summon
+  </a>
+  <a href="collection.html" class="bnav-btn">
+    <span class="bnav-icon">📖</span>Collection
+  </a>
+  <a href="battle.html" class="bnav-btn">
+    <span class="bnav-icon">⚔️</span>Battle
+  </a>
+</div>
+
+<script>
+// ── SAVE SYSTEM ──
+function load(key, def) {
+  try { const v = localStorage.getItem('dl_' + key); return v !== null ? JSON.parse(v) : def; }
+  catch(e) { return def; }
+}
+function save(key, val) {
+  try { localStorage.setItem('dl_' + key, JSON.stringify(val)); } catch(e) {}
+}
+
+// ── INIT PLAYER DATA ──
+let crystals = load('crystals', 300); // start with 300 crystals
+let gold = load('gold', 0);
+let streak = load('streak', 0);
+let lastLogin = load('lastLogin', '');
+let campaignLevel = load('campaignLevel', 1);
+let collection = load('collection', [
+  { id: 'ratling', tier: 'C', stars: 1 },
+  { id: 'furnace', tier: 'C', stars: 1 },
+  { id: 'kross',   tier: 'C', stars: 1 },
+]);
+
+function saveAll() {
+  save('crystals', crystals);
+  save('gold', gold);
+  save('streak', streak);
+  save('lastLogin', lastLogin);
+  save('campaignLevel', campaignLevel);
+  save('collection', collection);
+}
+
+// ── DAILY LOGIN ──
+const DAY_REWARDS = [
+  { label: '+30 💎',  crystals: 30,  gold: 0    },
+  { label: '+30 💎',  crystals: 30,  gold: 0    },
+  { label: '+50 💎',  crystals: 50,  gold: 0    },
+  { label: '+100 🪙', crystals: 0,   gold: 100  },
+  { label: '+50 💎',  crystals: 50,  gold: 0    },
+  { label: '+100 💎', crystals: 100, gold: 0    },
+  { label: '+200 💎', crystals: 200, gold: 0    },
+];
+
+function checkDailyLogin() {
+  const today = new Date().toDateString();
+  const alreadyClaimed = lastLogin === today;
+
+  // Build day slots
+  const grid = document.getElementById('daily-days');
+  grid.innerHTML = '';
+  for (let i = 0; i < 7; i++) {
+    const slot = document.createElement('div');
+    const dayNum = i + 1;
+    const reward = DAY_REWARDS[i];
+    let state = 'future';
+    if (i < streak % 7) state = 'claimed';
+    if (i === streak % 7) state = alreadyClaimed ? 'claimed' : 'today';
+    slot.className = 'day-slot ' + state;
+    slot.innerHTML = `
+      <span class="day-num">Day ${dayNum}</span>
+      <span class="day-icon">${state === 'claimed' ? '✓' : state === 'today' ? '🎁' : '🔒'}</span>
+      <span class="day-reward" style="color:${state==='claimed'?'var(--green)':state==='today'?'var(--gold)':'var(--fg3)'}">${reward.crystals > 0 ? reward.crystals+'💎' : reward.gold+'🪙'}</span>
+    `;
+    grid.appendChild(slot);
+  }
+
+  // Claim button
+  const wrap = document.getElementById('claim-wrap');
+  if (alreadyClaimed) {
+    wrap.innerHTML = '<div class="already-claimed">✓ Come back tomorrow for your next reward</div>';
+  } else {
+    wrap.innerHTML = '<button class="claim-btn" onclick="claimDaily()">Claim Day ' + ((streak % 7) + 1) + ' Reward</button>';
+  }
+
+  document.getElementById('streak-badge').textContent = '🔥 Day ' + ((streak % 7) + 1);
+}
+
+function claimDaily() {
+  const today = new Date().toDateString();
+  const idx = streak % 7;
+  const reward = DAY_REWARDS[idx];
+
+  crystals += reward.crystals;
+  gold += reward.gold;
+  streak++;
+  lastLogin = today;
+  saveAll();
+  updateUI();
+  checkDailyLogin();
+
+  // Show popup
+  document.getElementById('popup-day').textContent = idx + 1;
+  document.getElementById('popup-reward').textContent = reward.label;
+  document.getElementById('popup-sub').innerHTML = 'Day <strong>' + (idx+1) + '</strong> reward — ' + (streak % 7 === 0 ? '🔥 Week complete!' : 'Keep your streak going!');
+  document.getElementById('popup').classList.add('show');
+}
+
+function closePopup() {
+  document.getElementById('popup').classList.remove('show');
+}
+
+// ── UI UPDATE ──
+function updateUI() {
+  document.getElementById('nav-crystals').textContent = crystals;
+  document.getElementById('nav-gold').textContent = gold;
+  document.getElementById('stat-level').textContent = campaignLevel;
+  document.getElementById('stat-monsters').textContent = collection.length;
+  document.getElementById('stat-streak').textContent = streak;
+}
+
+// ── MISSIONS ──
+const MISSIONS = [
+  { text: 'Play 1 battle',        reward: '20 💎', done: false },
+  { text: 'Collect 3 monsters',   reward: '30 💎', done: collection.length >= 3 },
+  { text: 'Do 1 gacha pull',      reward: '10 💎', done: false },
+];
+function renderMissions() {
+  const list = document.getElementById('missions-list');
+  list.innerHTML = '';
+  MISSIONS.forEach(m => {
+    const el = document.createElement('div');
+    el.style.cssText = 'background:var(--bg2);border:0.5px solid var(--line);border-radius:var(--radius-sm);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem';
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:16px">${m.done ? '✅' : '⬜'}</span>
+        <span style="font-size:13px;color:${m.done ? 'var(--fg3)' : 'var(--fg)'};text-decoration:${m.done ? 'line-through' : 'none'}">${m.text}</span>
+      </div>
+      <span style="font-size:12px;font-weight:500;color:var(--gold);white-space:nowrap">${m.reward}</span>
+    `;
+    list.appendChild(el);
+  });
+}
+
+// ── BG PARTICLES ──
+function spawnParticles() {
+  const layer = document.getElementById('bg-layer');
+  const colors = ['#EF9F27','#7B6EF6','#E24B4A','#1D9E75'];
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = 3 + Math.random() * 6;
+    p.style.cssText = `
+      width:${size}px;height:${size}px;
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${8+Math.random()*12}s;
+      animation-delay:${Math.random()*8}s;
+    `;
+    layer.appendChild(p);
+  }
+}
+
+// ── INIT ──
+spawnParticles();
+updateUI();
+checkDailyLogin();
+renderMissions();
+</script>
+</body>
+</html>
