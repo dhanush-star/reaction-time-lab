@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Marvel & DC Risk — Prototype</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root{
+    --bg:#0b0e14; --panel:#141a24; --panel2:#1b2330; --line:#2a3445;
+    --ink:#e8ecf4; --dim:#8a96ab; --accent:#ff7a3d; --gold:#e8c468;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',Roboto,Arial,sans-serif;}
+  h1,h2,h3{font-family:Georgia,'Times New Roman',serif;letter-spacing:.5px;margin:0 0 6px;}
+  #app{display:grid;grid-template-columns:1fr 360px;gap:14px;padding:14px;max-width:1480px;margin:0 auto;}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;}
+  #mapPanel{position:relative;}
+  svg{width:100%;height:auto;background:radial-gradient(circle at 30% 20%, #18202e 0%, #0a0e15 60%);border-radius:10px;border:1px solid var(--line);}
+  .continent-label{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:0.55;}
+  .territory-shape{cursor:pointer;stroke:#05070a;stroke-width:1.6;transition:filter .15s, stroke .15s;}
+  .territory-shape.neutral{stroke:#3a4459;stroke-dasharray:3 2;}
+  .territory-shape:hover{filter:brightness(1.3);}
+  .territory-shape.selected{stroke:var(--gold) !important;stroke-width:3.5 !important;stroke-dasharray:none !important;}
+  .territory-shape.placeable{stroke:var(--accent) !important;stroke-width:3 !important;stroke-dasharray:none !important;}
+  .territory-label{font-size:9.5px;fill:var(--ink);pointer-events:none;text-anchor:middle;font-weight:600;text-shadow:0 1px 2px #000;}
+  .territory-troop{font-size:12px;font-weight:800;fill:#fff;pointer-events:none;text-anchor:middle;text-shadow:0 1px 2px #000;}
+  .territory-hero{font-size:8.5px;fill:var(--gold);pointer-events:none;text-anchor:middle;font-style:italic;text-shadow:0 1px 2px #000;}
+  .conn-line{stroke:rgba(255,255,255,0.18);stroke-width:1.2;}
+  .conn-line.bridge{stroke:var(--accent);stroke-width:2;stroke-dasharray:4 3;}
+  .terrain-icon{font-size:9px;fill:#fff;text-anchor:middle;pointer-events:none;opacity:0.8;}
+  button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 12px;cursor:pointer;font-size:13px;}
+  button:hover:not(:disabled){background:#26314a;border-color:var(--accent);}
+  button:disabled{opacity:.4;cursor:not-allowed;}
+  button.primary{background:var(--accent);color:#1a1006;border:none;font-weight:700;}
+  button.primary:hover:not(:disabled){background:#ff9560;}
+  button.tab{border-radius:6px 6px 0 0;}
+  button.tab.active{background:var(--accent);color:#1a1006;font-weight:700;border-color:var(--accent);}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  #phaseBar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+  .phase-pill{padding:5px 10px;border-radius:20px;font-size:11px;border:1px solid var(--line);color:var(--dim);}
+  .phase-pill.active{background:var(--accent);color:#1a1006;font-weight:700;border-color:var(--accent);}
+  .phase-pill.done{color:#3fb87f;border-color:#3fb87f;}
+  #log{height:150px;overflow-y:auto;background:#0b0f17;border:1px solid var(--line);border-radius:6px;padding:8px;font-size:12px;color:var(--dim);}
+  #log div{margin-bottom:4px;}
+  .hero-card{display:flex;gap:10px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:8px;}
+  .hero-portrait{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;}
+  .marvel{background:linear-gradient(135deg,#a31621,#5c0f17);}
+  .dc{background:linear-gradient(135deg,#1c3a6e,#0c1e3f);}
+  .hero-name{font-weight:700;font-size:13px;}
+  .hero-meta{font-size:11px;color:var(--dim);}
+  .player-strip{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-radius:6px;margin-bottom:6px;border:1px solid var(--line);}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;}
+  #setup{max-width:520px;margin:60px auto;text-align:center;}
+  .terrain-tag{font-size:10px;padding:2px 6px;border-radius:4px;background:#26314a;color:var(--dim);}
+  #toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--accent);padding:10px 18px;border-radius:8px;font-size:13px;z-index:50;display:none;}
+  .section-title{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);margin:14px 0 6px;}
+  .instr{font-size:12px;color:var(--dim);margin-bottom:8px;line-height:1.5;}
+  #attackHeroBanner{background:#241a0d;border:1px solid var(--accent);border-radius:8px;padding:8px 10px;font-size:12px;margin-bottom:10px;}
+  .cc-block{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px;}
+  .cc-block h4{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--gold);}
+  .cc-list{font-size:12px;color:var(--ink);line-height:1.7;}
+  .cc-row{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:3px 0;}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<div id="setup" class="panel">
+  <h1>MARVEL &amp; DC RISK</h1>
+  <p style="color:var(--dim);font-size:13px;">Prototype build — 26 territories, 4 continents, full 36-hero roster.<br>You play as <b style="color:#e0445b">Red</b>. The rest are AI commanders.<br>The map starts unclaimed — you only hold your home base.</p>
+  <div class="section-title">Number of Players</div>
+  <div class="row" id="playerCountRow" style="justify-content:center;">
+    <button data-n="2">2 Players</button>
+    <button data-n="3">3 Players</button>
+    <button data-n="4" class="primary">4 Players</button>
+  </div>
+  <p style="color:var(--dim);font-size:11px;margin-top:18px;">First to control all 26 territories wins instantly.</p>
+</div>
+
+<div id="app" style="display:none;">
+  <div id="mapPanel" class="panel">
+    <div id="phaseBar"></div>
+    <svg id="map" viewBox="0 0 920 640"></svg>
+    <div class="section-title">Battle Log</div>
+    <div id="log"></div>
+  </div>
+
+  <div id="sidebar" class="panel">
+    <div id="players"></div>
+    <div class="row" style="margin-top:10px;">
+      <button class="tab" id="tabTurnBtn">Current Turn</button>
+      <button class="tab" id="tabCmdBtn">Command Center</button>
+    </div>
+    <div id="phaseContent"></div>
+  </div>
+</div>
+
+<script>
+/* ============== DATA: TERRAIN ============== */
+const TERRAIN = {
+  Mountain: {def:0.25, atk:-0.20, icon:'▲'},
+  Swamp:    {def:0.20, atk:-0.15, icon:'≈'},
+  Forest:   {def:0.15, atk:-0.10, icon:'♣'},
+  Urban:    {def:0.10, atk:0.10,  icon:'▦'},
+  Coast:    {def:0.05, atk:-0.05, icon:'~'},
+  Desert:   {def:0.10, atk:0.0,   icon:'•'},
+  Open:     {def:0.0,  atk:0.0,   icon:'○'},
+};
+
+/* ============== DATA: TERRITORIES ============== */
+const TERRITORIES = [
+ {id:'asgard_reach', name:'Asgard Reach', cont:'A', terrain:'Mountain', x:130, y:110, conn:['sunscar_wastes','crystal_peaks']},
+ {id:'crystal_peaks', name:'Crystal Peaks', cont:'A', terrain:'Mountain', x:255, y:90, conn:['asgard_reach','gotham_hollow']},
+ {id:'sunscar_wastes', name:'Sunscar Wastes', cont:'A', terrain:'Desert', x:95, y:210, conn:['asgard_reach','open_sands','dust_bridge']},
+ {id:'gotham_hollow', name:'Gotham Hollow', cont:'A', terrain:'Urban', x:255, y:210, conn:['crystal_peaks','open_sands','themyscira_shore']},
+ {id:'open_sands', name:'Open Sands', cont:'A', terrain:'Open', x:170, y:285, conn:['sunscar_wastes','gotham_hollow']},
+ {id:'themyscira_shore', name:'Themyscira Shore', cont:'A', terrain:'Coast', x:330, y:280, conn:['gotham_hollow','dust_bridge']},
+ {id:'dust_bridge', name:'Dust Bridge', cont:'A', terrain:'Open', x:290, y:350, conn:['sunscar_wastes','themyscira_shore','central_plains']},
+
+ {id:'central_plains', name:'Central Plains', cont:'D', terrain:'Open', x:280, y:420, conn:['dust_bridge','new_metropolis','scorched_hollow']},
+ {id:'new_metropolis', name:'New Metropolis', cont:'D', terrain:'Urban', x:155, y:440, conn:['central_plains','bygone_fields']},
+ {id:'bygone_fields', name:'Bygone Fields', cont:'D', terrain:'Open', x:155, y:540, conn:['new_metropolis','dunewatch']},
+ {id:'scorched_hollow', name:'Scorched Hollow', cont:'D', terrain:'Desert', x:280, y:500, conn:['central_plains','dunewatch']},
+ {id:'dunewatch', name:'Dunewatch', cont:'D', terrain:'Desert', x:280, y:580, conn:['bygone_fields','scorched_hollow','ironclad_docks']},
+ {id:'ironclad_docks', name:'Ironclad Docks', cont:'D', terrain:'Swamp', x:400, y:580, conn:['dunewatch','vine_bridge']},
+
+ {id:'vine_bridge', name:'Vine Bridge', cont:'C', terrain:'Forest', x:500, y:550, conn:['ironclad_docks','wakanda_vale','sunken_shore']},
+ {id:'wakanda_vale', name:'Wakanda Vale', cont:'C', terrain:'Forest', x:580, y:470, conn:['vine_bridge','lost_amazon','bridge_of_whispers']},
+ {id:'sunken_shore', name:'Sunken Shore', cont:'C', terrain:'Coast', x:500, y:460, conn:['vine_bridge','aquaria_bay']},
+ {id:'lost_amazon', name:'Lost Amazon', cont:'C', terrain:'Swamp', x:700, y:440, conn:['wakanda_vale','serpent_marsh']},
+ {id:'aquaria_bay', name:'Aquaria Bay', cont:'C', terrain:'Coast', x:610, y:580, conn:['sunken_shore','tropic_hollow']},
+ {id:'tropic_hollow', name:'Tropic Hollow', cont:'C', terrain:'Swamp', x:720, y:580, conn:['aquaria_bay','serpent_marsh']},
+ {id:'serpent_marsh', name:'Serpent Marsh', cont:'C', terrain:'Swamp', x:790, y:500, conn:['tropic_hollow','lost_amazon']},
+
+ {id:'bridge_of_whispers', name:'Bridge of Whispers', cont:'B', terrain:'Open', x:580, y:390, conn:['wakanda_vale','stark_outpost']},
+ {id:'stark_outpost', name:'Stark Outpost', cont:'B', terrain:'Urban', x:645, y:310, conn:['bridge_of_whispers','silver_pines','shadow_ridge']},
+ {id:'shadow_ridge', name:'Shadow Ridge', cont:'B', terrain:'Open', x:775, y:310, conn:['stark_outpost','glacier_spire']},
+ {id:'silver_pines', name:'Silver Pines', cont:'B', terrain:'Forest', x:645, y:195, conn:['stark_outpost','frostbite_hollow']},
+ {id:'glacier_spire', name:'Glacier Spire', cont:'B', terrain:'Mountain', x:775, y:195, conn:['shadow_ridge','frostbite_hollow']},
+ {id:'frostbite_hollow', name:'Frostbite Hollow', cont:'B', terrain:'Forest', x:710, y:115, conn:['silver_pines','glacier_spire']},
+];
+const CONTINENTS = {
+  A:{name:'Solaris Expanse', bonus:3, color:'#e0b13a'},
+  B:{name:'Frostfall Reaches', bonus:2, color:'#3aa0e0'},
+  C:{name:'Verdant Wilds', bonus:3, color:'#3fb87f'},
+  D:{name:'Iron Coastlands', bonus:2, color:'#e0445b'},
+};
+TERRITORIES.forEach(t=>{
+  t.conn.forEach(cid=>{
+    const other = TERRITORIES.find(x=>x.id===cid);
+    if(other && !other.conn.includes(t.id)) other.conn.push(t.id);
+  });
+});
+const T = {}; TERRITORIES.forEach(t=>T[t.id]=t);
+
+/* ============== DATA: HEROES (36) ============== */
+function H(name,fac,power,ability){return {name,fac,power,ability};}
+const HEROES = [
+ H('Iron Man','Marvel',8,'Tech assault: +1 vs Urban'),
+ H('Captain America','Marvel',7,'Inspires allies: +1 morale'),
+ H('Thor','Marvel',9,'Storm call: +1 vs Open'),
+ H('Hulk','Marvel',9,'Rage: +2 power below half troops'),
+ H('Black Widow','Marvel',6,'Infiltrate: ignores Urban penalty'),
+ H('Hawkeye','Marvel',6,'Precision: reroll lowest d20'),
+ H('Spider-Man','Marvel',7,'Web trap: +1 vs Forest'),
+ H('Doctor Strange','Marvel',8,'Mystic shield: -1 incoming dmg chance'),
+ H('Vision','Marvel',7,'Phase: +1 defense'),
+ H('Black Panther','Marvel',7,'Vibranium guard: +1 vs jungle terrain'),
+ H('Scarlet Witch','Marvel',8,'Hex: -1 enemy power'),
+ H('Ant-Man','Marvel',5,'Size shift: +1 vs Swamp'),
+ H('Wasp','Marvel',5,'Swarm: +1 attack roll'),
+ H('Captain Marvel','Marvel',9,'Binary: +1 vs Mountain'),
+ H('Blade','Marvel',6,'Hunter: +1 vs Coast'),
+ H('Moon Knight','Marvel',6,'Fist of Khonshu: +1 night battles'),
+ H('Wolverine','Marvel',7,'Regeneration: survives first loss'),
+ H('Deadpool','Marvel',6,'Chaotic: random +/-1 power'),
+ H('Superman','DC',10,'Invincible: +2 defense'),
+ H('Batman','DC',7,'Detective: sees enemy troop count'),
+ H('Wonder Woman','DC',9,'Lasso of Truth: +1 vs all terrain'),
+ H('Flash','DC',7,'Speed: always attacks first'),
+ H('Green Lantern','DC',8,'Willpower: +1 vs Desert'),
+ H('Aquaman','DC',7,'Tide call: +2 vs Coast/Swamp'),
+ H('Cyborg','DC',7,'Tech link: +1 vs Urban'),
+ H('Green Arrow','DC',6,'Trick shot: reroll once'),
+ H('Hawkgirl','DC',6,'Aerial: +1 vs Open'),
+ H('Atom','DC',5,'Shrink: +1 vs Forest'),
+ H('Black Lightning','DC',6,'Surge: +1 vs Urban'),
+ H('Supergirl','DC',9,'Kryptonian: +2 defense'),
+ H('Shazam','DC',8,'Lightning: +1 attack roll'),
+ H('Starfire','DC',6,'Starbolt: +1 vs Mountain'),
+ H('Raven','DC',6,'Soul-Self: -1 enemy power'),
+ H('Nightwing','DC',6,'Acrobat: +1 vs Urban'),
+ H('Manhunter','DC',6,'Shapeshift: ignores 1 terrain penalty'),
+ H('Zatanna','DC',7,'Backwards spell: reroll on loss'),
+];
+
+/* ============== STATE ============== */
+const COLORS = ['#e0445b','#3aa0e0','#3fb87f','#e0b13a'];
+const NAMES = ['Red','Blue','Green','Yellow'];
+let state = null;
+
+function newGame(n){
+  let deck = [...HEROES].sort(()=>Math.random()-0.5);
+  let players = [];
+  for(let i=0;i<n;i++){
+    players.push({id:i, name:NAMES[i], color:COLORS[i], human:i===0, hero:null, alive:true});
+  }
+  const startSpots = ['gotham_hollow','stark_outpost','wakanda_vale','new_metropolis'];
+  TERRITORIES.forEach(t=>{ t.owner=null; t.troops=1; t.hero=null; });
+  for(let i=0;i<n;i++){
+    T[startSpots[i]].owner=i;
+    T[startSpots[i]].troops=3;
+  }
+  state = {
+    n, players, deck, turn:0, current:0, phase:0,
+    phases:['Hero Draw','Hero Deployment','Troop Deployment','Combat','Redeploy'],
+    pendingHero:null, reinforcements:0,
+    selectedAttacker:null, selectedDefender:null,
+    redeploySrc:null, redeployDst:null, redeployAmount:0,
+    alloc:{}, log:[], tab:'turn'
+  };
+  logMsg('Game started — map is unclaimed. Each commander holds only their home base.');
+}
+
+function logMsg(m){
+  state.log.unshift(m);
+  if(state.log.length>80) state.log.pop();
+  renderLog();
+}
+function renderLog(){
+  const el = document.getElementById('log');
+  el.innerHTML = state.log.map(m=>'<div>'+m+'</div>').join('');
+}
+
+function ownedBy(pid){ return TERRITORIES.filter(t=>t.owner===pid); }
+function controlsContinent(pid, cont){
+  return TERRITORIES.filter(t=>t.cont===cont).every(t=>t.owner===pid);
+}
+function reinforcementCount(pid){
+  const owned = ownedBy(pid).length;
+  let base = 3 + Math.floor(owned/5);
+  Object.keys(CONTINENTS).forEach(c=>{ if(controlsContinent(pid,c)) base += CONTINENTS[c].bonus; });
+  return base;
+}
+
+/* ============== RENDER MAP (Voronoi "real map" look) ============== */
+function continentBBox(cont){
+  const members = TERRITORIES.filter(t=>t.cont===cont);
+  const xs = members.map(t=>t.x), ys = members.map(t=>t.y);
+  const pad = 60;
+  return {x:Math.min(...xs)-pad, y:Math.min(...ys)-pad, w:Math.max(...xs)-Math.min(...xs)+pad*2, h:Math.max(...ys)-Math.min(...ys)+pad*2};
+}
+
+function renderMap(){
+  const svg = document.getElementById('map');
+  let polyHtml='', lineHtml='', labelHtml='', continentLabelHtml='';
+
+  Object.keys(CONTINENTS).forEach(c=>{
+    const bb = continentBBox(c);
+    continentLabelHtml += `<text class="continent-label" x="${bb.x+14}" y="${bb.y+18}" fill="${CONTINENTS[c].color}">${CONTINENTS[c].name}</text>`;
+
+    const members = TERRITORIES.filter(t=>t.cont===c);
+    const pts = members.map(t=>[t.x,t.y]);
+    const delaunay = d3.Delaunay.from(pts);
+    const voronoi = delaunay.voronoi([bb.x, bb.y, bb.x+bb.w, bb.y+bb.h]);
+    members.forEach((t,i)=>{
+      const poly = voronoi.cellPolygon(i);
+      const owner = t.owner!==null ? state.players[t.owner] : null;
+      const fill = owner ? owner.color : 'rgba(255,255,255,0.07)';
+      let cls='territory-shape';
+      if(!owner) cls+=' neutral';
+      const isSelected = t.id===state.selectedAttacker || t.id===state.selectedDefender || t.id===state.redeploySrc || t.id===state.redeployDst;
+      if(isSelected) cls+=' selected';
+      const placeMode = (state.players[state.current].human && state.phase===1 && state.pendingHero && t.owner===state.current);
+      if(placeMode) cls+=' placeable';
+      if(poly){
+        const d = 'M' + poly.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join('L') + 'Z';
+        polyHtml += `<path data-id="${t.id}" class="${cls}" d="${d}" fill="${fill}" fill-opacity="${owner?0.88:0.55}"></path>`;
+      } else {
+        polyHtml += `<circle data-id="${t.id}" class="${cls}" cx="${t.x}" cy="${t.y}" r="26" fill="${fill}" fill-opacity="${owner?0.88:0.55}"></circle>`;
+      }
+    });
+  });
+
+  const drawn = new Set();
+  TERRITORIES.forEach(t=>{
+    t.conn.forEach(cid=>{
+      const key=[t.id,cid].sort().join('-');
+      if(drawn.has(key)) return; drawn.add(key);
+      const o = T[cid];
+      const isBridge = t.cont !== o.cont;
+      lineHtml += `<line class="conn-line ${isBridge?'bridge':''}" x1="${t.x}" y1="${t.y}" x2="${o.x}" y2="${o.y}"/>`;
+    });
+  });
+
+  TERRITORIES.forEach(t=>{
+    labelHtml += `<g style="pointer-events:none;">
+      <text class="terrain-icon" x="${t.x}" y="${t.y-16}">${TERRAIN[t.terrain].icon} ${t.terrain}</text>
+      <text class="territory-troop" x="${t.x}" y="${t.y+3}">${t.troops}</text>
+      <text class="territory-label" x="${t.x}" y="${t.y+18}">${t.name}</text>
+      ${t.hero ? `<text class="territory-hero" x="${t.x}" y="${t.y+30}">★ ${t.hero.name}</text>` : ''}
+    </g>`;
+  });
+
+  svg.innerHTML = continentLabelHtml + polyHtml + lineHtml + labelHtml;
+  svg.querySelectorAll('.territory-shape').forEach(p=>{
+    p.addEventListener('click', ()=>onTerritoryClick(p.getAttribute('data-id')));
+  });
+}
+
+function renderPlayers(){
+  const el = document.getElementById('players');
+  el.innerHTML = '<div class="section-title">Commanders</div>' + state.players.map(p=>{
+    const cnt = ownedBy(p.id).length;
+    const turnTag = (p.id===state.current) ? ' ◀ TURN' : '';
+    return `<div class="player-strip" style="border-color:${p.id===state.current?p.color:'var(--line)'}">
+      <span><span class="dot" style="background:${p.color}"></span>${p.name}${p.human?' (You)':' (AI)'}${turnTag}</span>
+      <span style="color:var(--dim);font-size:12px;">${cnt} territories</span>
+    </div>`;
+  }).join('');
+}
+
+function renderPhaseBar(){
+  const el = document.getElementById('phaseBar');
+  el.innerHTML = state.phases.map((p,i)=>{
+    let cls = i===state.phase ? 'active' : (i<state.phase?'done':'');
+    return `<div class="phase-pill ${cls}">${i+1}. ${p}</div>`;
+  }).join('');
+}
+
+/* ============== TABS ============== */
+function renderTabs(){
+  document.getElementById('tabTurnBtn').classList.toggle('active', state.tab==='turn');
+  document.getElementById('tabCmdBtn').classList.toggle('active', state.tab==='command');
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('tabTurnBtn').onclick = ()=>{ state.tab='turn'; render(); };
+  document.getElementById('tabCmdBtn').onclick = ()=>{ state.tab='command'; render(); };
+});
+
+/* ============== COMMAND CENTER (heroes / territories / bonuses) ============== */
+function renderCommandCenter(el){
+  const pid = 0; // human player
+  const p = state.players[pid];
+  const owned = ownedBy(pid);
+  const heroesOnField = owned.filter(t=>t.hero).map(t=>({t, h:t.hero}));
+  const activeContinents = Object.keys(CONTINENTS).filter(c=>controlsContinent(pid,c));
+  const nextTroops = reinforcementCount(pid);
+
+  el.innerHTML = `
+    <div class="cc-block">
+      <h4>Your Heroes In The Field (${heroesOnField.length})</h4>
+      <div class="cc-list">
+        ${heroesOnField.length===0 ? '<i style="color:var(--dim)">No heroes stationed yet.</i>' :
+          heroesOnField.map(x=>`<div class="cc-row"><span>★ ${x.h.name} <span class="terrain-tag">${x.h.fac}</span></span><span>Pwr ${x.h.power} @ ${x.t.name}</span></div>`).join('')}
+      </div>
+    </div>
+    <div class="cc-block">
+      <h4>Your Territories (${owned.length})</h4>
+      <div class="cc-list">
+        ${owned.length===0 ? '<i style="color:var(--dim)">None yet.</i>' :
+          owned.map(t=>`<div class="cc-row"><span>${t.name}</span><span>${t.terrain} · ${t.troops} troops</span></div>`).join('')}
+      </div>
+    </div>
+    <div class="cc-block">
+      <h4>Continent Bonuses Held</h4>
+      <div class="cc-list">
+        ${activeContinents.length===0 ? '<i style="color:var(--dim)">No continent fully controlled.</i>' :
+          activeContinents.map(c=>`<div class="cc-row"><span>${CONTINENTS[c].name}</span><span>+${CONTINENTS[c].bonus} troops/turn</span></div>`).join('')}
+      </div>
+    </div>
+    <div class="cc-block">
+      <h4>Next Round Reinforcements</h4>
+      <div class="cc-list">
+        <div class="cc-row"><span>Base (3 + territories/5)</span><span>${3 + Math.floor(owned.length/5)}</span></div>
+        <div class="cc-row"><span>Continent bonuses</span><span>+${nextTroops - (3 + Math.floor(owned.length/5))}</span></div>
+        <div class="cc-row" style="font-weight:700;color:var(--gold);"><span>Total next turn</span><span>${nextTroops}</span></div>
+      </div>
+    </div>`;
+}
+
+/* ============== PHASE CONTENT ============== */
+function renderPhaseContent(){
+  const el = document.getElementById('phaseContent');
+  if(state.tab==='command'){ renderCommandCenter(el); return; }
+
+  const player = state.players[state.current];
+  if(!player.human){ el.innerHTML = `<p style="color:var(--dim);">AI is taking its turn…</p>`; return; }
+
+  if(state.phase===0){ renderHeroDraw(el); }
+  else if(state.phase===1){ renderHeroDeploy(el); }
+  else if(state.phase===2){ renderTroopDeploy(el); }
+  else if(state.phase===3){ renderCombat(el); }
+  else if(state.phase===4){ renderRedeploy(el); }
+}
+
+function renderHeroDraw(el){
+  if(!state.pendingHero){
+    el.innerHTML = `<div class="section-title">Phase 1 — Hero Draw</div>
+      <p class="instr">Draw your hero card for this turn.</p>
+      <button class="primary" id="drawBtn">Draw Hero</button>`;
+    document.getElementById('drawBtn').onclick = ()=>{
+      if(state.deck.length===0) state.deck = [...HEROES].sort(()=>Math.random()-0.5);
+      state.pendingHero = state.deck.pop();
+      logMsg(`${state.players[state.current].name} drew <b>${state.pendingHero.name}</b> (${state.pendingHero.fac}).`);
+      renderPhaseContent();
+    };
+  } else {
+    el.innerHTML = `<div class="section-title">Phase 1 — Hero Draw</div>` + heroCard(state.pendingHero) +
+      `<button class="primary" id="nextBtn">Continue to Deployment</button>`;
+    document.getElementById('nextBtn').onclick = ()=>{ state.phase=1; render(); };
+  }
+}
+function heroCard(h){
+  const cls = h.fac==='Marvel'?'marvel':'dc';
+  return `<div class="hero-card"><div class="hero-portrait ${cls}">${h.name[0]}</div>
+    <div><div class="hero-name">${h.name} <span class="terrain-tag">${h.fac}</span></div>
+    <div class="hero-meta">Power ${h.power} · ${h.ability}</div></div></div>`;
+}
+
+function renderHeroDeploy(el){
+  el.innerHTML = `<div class="section-title">Phase 2 — Hero Deployment</div>` + heroCard(state.pendingHero) +
+    `<p class="instr">Click one of <b style="color:${state.players[state.current].color}">your highlighted territories</b> on the map to station this hero there.<br><b>Only one hero may occupy a territory at a time</b> — a territory that already has a hero won't accept another.</p>`;
+}
+
+function renderTroopDeploy(el){
+  const owned = ownedBy(state.current);
+  owned.forEach(t=>{ if(state.alloc[t.id]===undefined) state.alloc[t.id]=0; });
+  const used = Object.values(state.alloc).reduce((a,b)=>a+b,0);
+  const remaining = state.reinforcements - used;
+  el.innerHTML = `<div class="section-title">Phase 3 — Troop Deployment</div>
+    <p class="instr">Reinforcements available: <b style="color:var(--gold)">${state.reinforcements}</b> · remaining: <b>${remaining}</b><br>
+    Click a territory you own on the map to add 1 troop. Shift-click to remove 1.</p>
+    <div style="margin-top:10px;"><button class="primary" id="confirmDeployBtn" ${remaining!==0?'disabled':''}>Confirm Deployment</button></div>`;
+  document.getElementById('confirmDeployBtn').onclick = ()=>{
+    Object.keys(state.alloc).forEach(id=>{ T[id].troops += state.alloc[id]; });
+    logMsg(`${state.players[state.current].name} deployed ${state.reinforcements} reinforcements.`);
+    state.phase = 3;
+    state.selectedAttacker=null; state.selectedDefender=null;
+    render();
+  };
+}
+
+function renderCombat(el){
+  const a = state.selectedAttacker ? T[state.selectedAttacker] : null;
+  const d = state.selectedDefender ? T[state.selectedDefender] : null;
+  let banner = '';
+  if(a || d){
+    banner = `<div id="attackHeroBanner">
+      ${a ? `<div><b style="color:${state.players[a.owner].color}">${state.players[a.owner].name}</b> attacking from <b>${a.name}</b>${a.hero?` — hero on field: <span style="color:var(--gold)">★ ${a.hero.name}</span>`:' (no hero stationed)'}</div>`:''}
+      ${d ? `<div style="margin-top:4px;"><b style="color:${d.owner!==null?state.players[d.owner].color:'var(--dim)'}">${d.owner!==null?state.players[d.owner].name:'Neutral'}</b> defending <b>${d.name}</b>${d.hero?` — hero on field: <span style="color:var(--gold)">★ ${d.hero.name}</span>`:' (no hero stationed)'}</div>`:''}
+    </div>`;
+  }
+  el.innerHTML = `<div class="section-title">Phase 4 — Combat</div>
+    <p class="instr">Click one of your territories (2+ troops) bordering an enemy/neutral territory, then click that target to attack. Click "Resolve Attack Round" to fight.</p>
+    ${banner}
+    <div class="row">
+      <button id="attackBtn" class="primary" ${(!state.selectedAttacker||!state.selectedDefender)?'disabled':''}>Resolve Attack Round</button>
+      <button id="retreatBtn" ${!state.selectedAttacker?'disabled':''}>Cancel Selection</button>
+      <button id="endCombatBtn">Continue to Redeploy Phase</button>
+    </div>`;
+  document.getElementById('attackBtn').onclick = resolveCombatRound;
+  document.getElementById('retreatBtn').onclick = ()=>{ state.selectedAttacker=null; state.selectedDefender=null; render(); };
+  document.getElementById('endCombatBtn').onclick = ()=>{ state.phase=4; state.selectedAttacker=null; state.selectedDefender=null; render(); };
+}
+
+function renderRedeploy(el){
+  const src = state.redeploySrc ? T[state.redeploySrc] : null;
+  const dst = state.redeployDst ? T[state.redeployDst] : null;
+  let body = `<p class="instr">Move troops between two territories you control to fortify your front line.<br>
+    1. Click one of your territories (2+ troops) as the <b>source</b>.<br>
+    2. Click an <b>adjacent</b> territory you also own as the <b>destination</b>.</p>`;
+  if(src && dst){
+    const maxMove = src.troops - 1;
+    body += `<div class="instr">Moving from <b>${src.name}</b> (${src.troops}) to <b>${dst.name}</b> (${dst.troops})</div>
+      <div class="row">
+        <button id="decAmt">-</button>
+        <span style="min-width:24px;text-align:center;">${state.redeployAmount}</span>
+        <button id="incAmt">+</button>
+        <button class="primary" id="confirmMoveBtn" ${state.redeployAmount<1?'disabled':''}>Move Troops</button>
+      </div>`;
+  } else if(src){
+    body += `<div class="instr">Source selected: <b>${src.name}</b> (${src.troops} troops). Now click an adjacent territory you own.</div>`;
+  }
+  body += `<div class="row" style="margin-top:14px;">
+      <button id="cancelMoveBtn">Cancel Selection</button>
+      <button class="primary" id="endTurnBtn">End Turn</button>
+    </div>`;
+  el.innerHTML = `<div class="section-title">Phase 5 — Redeploy</div>` + body;
+
+  if(document.getElementById('incAmt')){
+    document.getElementById('incAmt').onclick = ()=>{
+      const max = T[state.redeploySrc].troops - 1;
+      if(state.redeployAmount<max) state.redeployAmount++;
+      render();
+    };
+    document.getElementById('decAmt').onclick = ()=>{
+      if(state.redeployAmount>0) state.redeployAmount--;
+      render();
+    };
+    document.getElementById('confirmMoveBtn').onclick = ()=>{
+      const s = T[state.redeploySrc], dd = T[state.redeployDst];
+      s.troops -= state.redeployAmount;
+      dd.troops += state.redeployAmount;
+      logMsg(`${state.players[state.current].name} redeployed ${state.redeployAmount} troops from ${s.name} to ${dd.name}.`);
+      state.redeploySrc=null; state.redeployDst=null; state.redeployAmount=0;
+      render();
+    };
+  }
+  document.getElementById('cancelMoveBtn').onclick = ()=>{
+    state.redeploySrc=null; state.redeployDst=null; state.redeployAmount=0; render();
+  };
+  document.getElementById('endTurnBtn').onclick = endTurn;
+}
+
+function onTerritoryClick(tid){
+  const player = state.players[state.current];
+  if(!player.human || state.tab!=='turn') return;
+  const t = T[tid];
+
+  if(state.phase===1){
+    if(!state.pendingHero) return;
+    if(t.owner!==state.current){ toast('You can only station heroes on territory you control.'); return; }
+    if(t.hero){ toast(`${t.name} already has a hero (${t.hero.name}). Only one hero per territory.`); return; }
+    t.hero = state.pendingHero;
+    logMsg(`${player.name} stationed ${state.pendingHero.name} at ${t.name}.`);
+    state.pendingHero = null;
+    state.phase = 2;
+    state.reinforcements = reinforcementCount(state.current);
+    state.alloc = {};
+    render();
+    return;
+  }
+
+  if(state.phase===2){
+    if(t.owner!==state.current) return;
+    const used = Object.values(state.alloc).reduce((a,b)=>a+b,0);
+    const remaining = state.reinforcements - used;
+    if(window.event && window.event.shiftKey){
+      if(state.alloc[t.id]>0) state.alloc[t.id]--;
+    } else {
+      if(remaining<=0){ toast('No reinforcements left to place.'); return; }
+      state.alloc[t.id] = (state.alloc[t.id]||0) + 1;
+    }
+    render();
+    return;
+  }
+
+  if(state.phase===3){
+    if(t.owner===state.current){
+      if(t.troops<2){ toast('Need at least 2 troops to attack from here.'); return; }
+      state.selectedAttacker = tid; state.selectedDefender=null;
+    } else if(state.selectedAttacker){
+      const a = T[state.selectedAttacker];
+      if(!a.conn.includes(tid)){ toast('Not adjacent to your selected territory.'); return; }
+      state.selectedDefender = tid;
+    }
+    render();
+    return;
+  }
+
+  if(state.phase===4){
+    if(!state.redeploySrc){
+      if(t.owner!==state.current){ toast('Pick one of your own territories as the source.'); return; }
+      if(t.troops<2){ toast('Need at least 2 troops to move any out.'); return; }
+      state.redeploySrc = tid;
+    } else if(!state.redeployDst){
+      if(t.owner!==state.current){ toast('Destination must also be your territory.'); return; }
+      if(tid===state.redeploySrc) return;
+      const s = T[state.redeploySrc];
+      if(!s.conn.includes(tid)){ toast('Destination must be adjacent to the source.'); return; }
+      state.redeployDst = tid;
+      state.redeployAmount = 1;
+    }
+    render();
+    return;
+  }
+}
+
+function combatPower(t, isAttacker){
+  let power = 0;
+  if(t.hero) power += t.hero.power*1.5;
+  power += t.troops*1.0;
+  const terr = TERRAIN[t.terrain];
+  power += power * (isAttacker ? terr.atk : terr.def);
+  if(t.owner!==null){
+    Object.keys(CONTINENTS).forEach(c=>{ if(controlsContinent(t.owner,c) && t.cont===c) power += 2; });
+  }
+  power += Math.floor(Math.random()*20)+1;
+  return power;
+}
+
+function resolveCombatRound(){
+  const a = T[state.selectedAttacker], d = T[state.selectedDefender];
+  if(!a || !d || a.troops<2) return;
+  const ap = combatPower(a, true);
+  const dp = combatPower(d, false);
+  let result;
+  const attackerName = state.players[a.owner].name;
+  const defenderName = d.owner!==null ? state.players[d.owner].name : 'Neutral forces';
+  if(ap > dp){
+    d.troops -= 1;
+    result = `${attackerName}'s ${a.hero?a.hero.name:'troops'} strike ${d.name}! (${ap.toFixed(1)} vs ${dp.toFixed(1)}) — defender down to ${d.troops}.`;
+    if(d.troops<=0){
+      d.owner = a.owner; d.troops = 1; d.hero=null;
+      a.troops -= 1;
+      result += ` ${d.name} has fallen! ${attackerName} claims it.`;
+      state.selectedAttacker=null; state.selectedDefender=null;
+      checkWin();
+    }
+  } else {
+    a.troops -= 1;
+    result = `${defenderName} holds ${d.name}${d.hero?` with ${d.hero.name}`:''}! (${ap.toFixed(1)} vs ${dp.toFixed(1)}) — attacker down to ${a.troops}.`;
+    if(a.troops<=1){ state.selectedAttacker=null; state.selectedDefender=null; }
+  }
+  logMsg(result);
+  render();
+}
+
+function checkWin(){
+  for(const p of state.players){
+    if(ownedBy(p.id).length === TERRITORIES.length){
+      setTimeout(()=>{ alert(`${p.name} controls all 26 territories — VICTORY!`); }, 50);
+    }
+  }
+}
+
+function endTurn(){
+  state.turn++;
+  state.current = (state.current+1) % state.n;
+  state.phase = 0;
+  state.pendingHero = null;
+  state.alloc = {};
+  state.redeploySrc=null; state.redeployDst=null; state.redeployAmount=0;
+  render();
+  if(!state.players[state.current].human) setTimeout(aiTurn, 600);
+}
+
+/* ============== AI ============== */
+function aiTurn(){
+  const pid = state.current;
+  const player = state.players[pid];
+  logMsg(`<i>${player.name} (AI) is taking its turn…</i>`);
+  if(state.deck.length===0) state.deck = [...HEROES].sort(()=>Math.random()-0.5);
+  const hero = state.deck.pop();
+  const owned = ownedBy(pid);
+  if(owned.length===0){ endTurn(); return; }
+  let target = owned.find(t=>t.hero===null && t.conn.some(c=>T[c].owner!==pid)) || owned.find(t=>t.hero===null);
+  if(target){
+    target.hero = hero;
+  } else {
+    logMsg(`${player.name} (AI) has no free territory to station ${hero.name} — held in reserve.`);
+  }
+  let reinforcements = reinforcementCount(pid);
+  const borders = owned.filter(t=>t.conn.some(c=>T[c].owner!==pid));
+  const pool = borders.length ? borders : owned;
+  while(reinforcements>0){
+    const t = pool[Math.floor(Math.random()*pool.length)];
+    t.troops += 1; reinforcements--;
+  }
+  let attacks = 0;
+  for(const t of owned){
+    if(t.troops<3) continue;
+    const enemyNeighbor = t.conn.map(c=>T[c]).find(o=>o.owner!==pid && o.troops < t.troops);
+    if(enemyNeighbor && attacks<3){
+      state.selectedAttacker = t.id; state.selectedDefender = enemyNeighbor.id;
+      while(T[t.id] && T[t.id].troops>1 && state.selectedDefender){
+        resolveCombatRound();
+        if(!state.selectedDefender) break;
+      }
+      attacks++;
+    }
+  }
+  state.selectedAttacker=null; state.selectedDefender=null;
+  // simple redeploy: shift troops from interior toward weakest border territory
+  const owned2 = ownedBy(pid);
+  const interior = owned2.find(t=>t.troops>2 && !t.conn.some(c=>T[c].owner!==pid));
+  const border = owned2.find(t=>t.conn.some(c=>T[c].owner!==pid));
+  if(interior && border && interior.conn.includes(border.id)){
+    const mv = interior.troops - 1;
+    interior.troops -= mv; border.troops += mv;
+  }
+  logMsg(`${player.name} (AI) ends its turn.`);
+  endTurn();
+}
+
+/* ============== TOAST ============== */
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.style.display='block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.style.display='none', 2200);
+}
+
+/* ============== MAIN RENDER ============== */
+function render(){
+  renderMap();
+  renderPlayers();
+  renderPhaseBar();
+  renderTabs();
+  renderPhaseContent();
+}
+
+document.querySelectorAll('#playerCountRow button').forEach(b=>{
+  b.onclick = ()=>{
+    const n = parseInt(b.getAttribute('data-n'));
+    newGame(n);
+    document.getElementById('setup').style.display='none';
+    document.getElementById('app').style.display='grid';
+    document.getElementById('tabTurnBtn').onclick = ()=>{ state.tab='turn'; render(); };
+    document.getElementById('tabCmdBtn').onclick = ()=>{ state.tab='command'; render(); };
+    render();
+  };
+});
+</script>
+</body>
+</html>
